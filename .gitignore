@@ -1,0 +1,6 @@
+*.DS_Store
+*.idea/
+*__pycache__/
+dump_sunrgbd/
+log_sunrgbd/
+demo_files/
