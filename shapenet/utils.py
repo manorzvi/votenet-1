@@ -3,8 +3,6 @@ import random
 import statistics
 import numpy as np
 from loguru import logger
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 from typing import List, Tuple
 from config import ShapenetConfig
 from shapenet_transforms import ShapenetTransforms
@@ -223,37 +221,7 @@ def collect_dataset_stats(data_dir: str, pts: bool = False):
     return stats, rev_stats
 
 
-def draw_pc(pc: np.ndarray, ax, color: str, size: int):
-    ax.scatter3D(pc[:, 0], pc[:, 1], pc[:, 2], color=color, s=size)
-    return ax
 
-
-def draw_corners3d(corners3d: np.ndarray, ax, color: str, size: float):
-    ax.scatter3D(corners3d[:, 0], corners3d[:, 1], corners3d[:, 2], color=color)
-
-    for j in range(corners3d.shape[0]):
-        ax.text(corners3d[j, 0], corners3d[j, 1], corners3d[j, 2], '{0}'.format(j), color=color)
-    for m in range(0, 4):
-        ax.plot(
-            np.asarray([corners3d[m, 0], corners3d[(m + 1) % 4, 0]]),
-            np.asarray([corners3d[m, 1], corners3d[(m + 1) % 4, 1]]),
-            np.asarray([corners3d[m, 2], corners3d[(m + 1) % 4, 2]]),
-            color=color, linewidth=size
-        )
-        ax.plot(
-            np.asarray([corners3d[m + 4, 0], corners3d[(m + 5) % 4 + 4, 0]]),
-            np.asarray([corners3d[m + 4, 1], corners3d[(m + 5) % 4 + 4, 1]]),
-            np.asarray([corners3d[m + 4, 2], corners3d[(m + 5) % 4 + 4, 2]]),
-            color=color, linewidth=size
-        )
-        ax.plot(
-            np.asarray([corners3d[m, 0], corners3d[m + 4, 0]]),
-            np.asarray([corners3d[m, 1], corners3d[m + 4, 1]]),
-            np.asarray([corners3d[m, 2], corners3d[m + 4, 2]]),
-            color=color, linewidth=size
-        )
-
-    return ax
 
 
 if __name__ == '__main__':

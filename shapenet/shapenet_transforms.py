@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List, Optional
 
+
 class ShapenetTransforms:
     def __init__(self):
         self.coords = {"x": 0, "y": 1, "z": 2}
@@ -10,7 +11,8 @@ class ShapenetTransforms:
             "yz": lambda x: self.rotx(x),
         }
 
-    def to_center(self, pc: np.ndarray):
+    @staticmethod
+    def to_center(pc: np.ndarray):
         center = np.mean(pc, axis=0, keepdims=True)
         pc -= center
         return pc
