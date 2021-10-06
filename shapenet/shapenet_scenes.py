@@ -30,7 +30,7 @@ class Parser(object):
         parser.add_argument("--n-scenes", type=int, default=10)
         parser.add_argument("--excludes", type=str, nargs="+", default=[])
 
-        parser.add_argument("--input-path", type=str, default='train_data')
+        parser.add_argument("--input-path", type=str, required=True)
         parser.add_argument("--output-path", type=str, required=True)
 
         parser.add_argument("--step-size", type=float, default=1.0)
