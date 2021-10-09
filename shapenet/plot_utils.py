@@ -11,6 +11,22 @@ def draw_pc(pc: np.ndarray, ax, color: str, size: int):
     return ax
 
 
+def draw_votes(pc: np.ndarray, votes: np.ndarray, votes_mask: np.ndarray, ax, color: str, size: float):
+
+        choices = np.random.randint(0, pc.shape[0], 1000)
+        choices_vec = np.zeros_like(votes_mask)
+        choices_vec[choices] = 1
+
+        ax.quiver(pc[(votes_mask * choices_vec).astype(bool), 0],
+                  pc[(votes_mask * choices_vec).astype(bool), 1],
+                  pc[(votes_mask * choices_vec).astype(bool), 2],
+                  votes[(votes_mask * choices_vec).astype(bool), 0],
+                  votes[(votes_mask * choices_vec).astype(bool), 1],
+                  votes[(votes_mask * choices_vec).astype(bool), 2],
+                  color=color, linewidth=size)
+        return ax
+
+
 def draw_corners3d(corners3d: np.ndarray, ax, color: str, size: float):
     ax.scatter3D(corners3d[:, 0], corners3d[:, 1], corners3d[:, 2], color=color)
 
