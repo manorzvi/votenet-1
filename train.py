@@ -65,10 +65,17 @@ parser.add_argument('--use_cond_votes', action='store_true', default=False,
 parser.add_argument('--use_rand_votes', action='store_true', default=False,
                     help='All points can vote, but only the points associated with the conditioned object vote to the center.'
                          'The rest vote to a random point.')
+parser.add_argument('--use_two_backbones', action='store_true', default=False,
+                    help='Use another pointnet++ backbone net for the conditional point cloud.')
+parser.add_argument('--use_learnable_cond', action='store_true', default=False,
+                    help='Use a special layer to process the conditional point cloud deep features.')
 parser.add_argument('--use_sunrgbd_v2', action='store_true', help='Use V2 box labels for SUN RGB-D dataset')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite existing log and dump folders.')
 parser.add_argument('--dump_results', action='store_true', help='Dump results.')
 FLAGS = parser.parse_args()
+
+assert not (FLAGS.use_rand_votes and not FLAGS.use_cond_votes), "If use_rand_votes=True, use_cond_votes=True is a must!"
+assert not (FLAGS.model == 'cond_votenet' and FLAGS.dataset != 'shapenet'), "If model=cond_votenet, dataset=shapenet is a must!"
 
 # ------------------------------------------------------------------------- GLOBAL CONFIG BEG
 BATCH_SIZE = FLAGS.batch_size
@@ -169,23 +176,41 @@ TEST_DATALOADER = DataLoader(TEST_DATASET, batch_size=BATCH_SIZE,
     shuffle=True, num_workers=4, worker_init_fn=my_worker_init_fn)
 print(f' |TRAIN_DATALOADER|={len(TRAIN_DATALOADER)}', f'|TEST_DATALOADER|={len(TEST_DATALOADER)}')
 # Init the model and optimzier
-MODEL = importlib.import_module(FLAGS.model) # import network module
+MODEL = importlib.import_module(FLAGS.model)  # import network module
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 num_input_channel = int(FLAGS.use_color)*3 + int(not FLAGS.no_height)*1
 
 if FLAGS.model == 'boxnet':
     Detector = MODEL.BoxNet
+elif FLAGS.model == 'cond_votenet':
+    Detector = MODEL.CondVoteNet
 else:
     Detector = MODEL.VoteNet
 
-net = Detector(num_class=DATASET_CONFIG.num_class,
-               num_heading_bin=DATASET_CONFIG.num_heading_bin,
-               num_size_cluster=DATASET_CONFIG.num_size_cluster,
-               mean_size_arr=DATASET_CONFIG.mean_size_arr,
-               num_proposal=FLAGS.num_target,
-               input_feature_dim=num_input_channel,
-               vote_factor=FLAGS.vote_factor,
-               sampling=FLAGS.cluster_sampling)
+if FLAGS.model == 'cond_votenet':
+    net = Detector(
+        num_class=DATASET_CONFIG.num_class,
+        num_heading_bin=DATASET_CONFIG.num_heading_bin,
+        num_size_cluster=DATASET_CONFIG.num_size_cluster,
+        mean_size_arr=DATASET_CONFIG.mean_size_arr,
+        num_proposal=FLAGS.num_target,
+        input_feature_dim=num_input_channel,
+        vote_factor=FLAGS.vote_factor,
+        sampling=FLAGS.cluster_sampling,
+        use_two_backbones=FLAGS.use_two_backbones,
+        use_learnable_cond=FLAGS.use_learnable_cond
+    )
+else:
+    net = Detector(
+        num_class=DATASET_CONFIG.num_class,
+        num_heading_bin=DATASET_CONFIG.num_heading_bin,
+        num_size_cluster=DATASET_CONFIG.num_size_cluster,
+        mean_size_arr=DATASET_CONFIG.mean_size_arr,
+        num_proposal=FLAGS.num_target,
+        input_feature_dim=num_input_channel,
+        vote_factor=FLAGS.vote_factor,
+        sampling=FLAGS.cluster_sampling
+    )
 
 if torch.cuda.device_count() > 1:
   log_string("Let's use %d GPUs!" % (torch.cuda.device_count()))
@@ -256,7 +281,16 @@ def train_one_epoch():
 
         # Forward pass
         optimizer.zero_grad()
-        inputs = {'point_clouds': batch_data_label['point_clouds']}
+        if FLAGS.dataset == 'shapenet':
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds'],
+                'cond_point_clouds': batch_data_label['cond_point_clouds']
+            }
+        else:
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds']
+            }
+
         end_points = net(inputs)
         
         # Compute loss and gradients, update parameters.
@@ -294,7 +328,16 @@ def evaluate_one_epoch():
             batch_data_label[key] = batch_data_label[key].to(device)
         
         # Forward pass
-        inputs = {'point_clouds': batch_data_label['point_clouds']}
+        if FLAGS.dataset == 'shapenet':
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds'],
+                'cond_point_clouds': batch_data_label['cond_point_clouds']
+            }
+        else:
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds'],
+            }
+
         with torch.no_grad():
             end_points = net(inputs)
 
