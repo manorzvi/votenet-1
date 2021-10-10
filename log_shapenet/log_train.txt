@@ -1,0 +1,353 @@
+Namespace(DUMP_DIR='dump_shapenet', ap_iou_thresh=0.25, batch_size=8, bn_decay_rate=0.5, bn_decay_step=20, checkpoint_path=None, cluster_sampling='vote_fps', dataset='shapenet', dump_dir='dump_shapenet', dump_results=True, learning_rate=0.001, log_dir='log_shapenet', lr_decay_rates='0.1,0.1,0.1', lr_decay_steps='80,120,160', max_epoch=180, model='cond_votenet', no_height=True, num_point=20000, num_target=256, overwrite=False, use_color=False, use_cond_votes=False, use_rand_votes=False, use_sunrgbd_v2=False, use_two_backbones=False, vote_factor=1, weight_decay=0)
+Namespace(DUMP_DIR='dump_shapenet', ap_iou_thresh=0.25, batch_size=8, bn_decay_rate=0.5, bn_decay_step=20, checkpoint_path=None, cluster_sampling='vote_fps', dataset='shapenet', dump_dir='dump_shapenet', dump_results=True, learning_rate=0.001, log_dir='log_shapenet', lr_decay_rates='0.1,0.1,0.1', lr_decay_steps='80,120,160', max_epoch=180, model='cond_votenet', no_height=True, num_point=20000, num_target=256, overwrite=False, use_color=False, use_cond_votes=False, use_rand_votes=False, use_sunrgbd_v2=False, use_two_backbones=False, vote_factor=1, weight_decay=0)
+**** EPOCH 000 ****
+Current learning rate: 0.001000
+Current BN decay momentum: 0.500000
+2021-10-10 18:30:24.857971
+ ---- batch: 010 ----
+mean box_loss: 0.920155
+mean center_loss: 0.315713
+mean heading_cls_loss: 2.213218
+mean heading_reg_loss: 0.047318
+mean loss: 23.438672
+mean neg_ratio: 0.658740
+mean obj_acc: 0.554411
+mean objectness_loss: 0.171376
+mean pos_ratio: 0.053223
+mean sem_cls_loss: 2.140045
+mean size_cls_loss: 2.434618
+mean size_reg_loss: 0.092340
+mean vote_loss: 1.124020
+ ---- batch: 020 ----
+mean box_loss: 0.633294
+mean center_loss: 0.216316
+mean heading_cls_loss: 1.373279
+mean heading_reg_loss: 0.017803
+mean loss: 20.588937
+mean neg_ratio: 0.684229
+mean obj_acc: 0.895987
+mean objectness_loss: 0.125154
+mean pos_ratio: 0.048486
+mean sem_cls_loss: 1.924630
+mean size_cls_loss: 2.044038
+mean size_reg_loss: 0.057443
+mean vote_loss: 1.170560
+ ---- batch: 030 ----
+mean box_loss: 0.480551
+mean center_loss: 0.152396
+mean heading_cls_loss: 0.868430
+mean heading_reg_loss: 0.010987
+mean loss: 17.067960
+mean neg_ratio: 0.565625
+mean obj_acc: 0.884701
+mean objectness_loss: 0.161326
+mean pos_ratio: 0.072217
+mean sem_cls_loss: 1.757350
+mean size_cls_loss: 1.819600
+mean size_reg_loss: 0.048365
+mean vote_loss: 0.969847
+ ---- batch: 040 ----
+mean box_loss: 0.409935
+mean center_loss: 0.131217
+mean heading_cls_loss: 0.548301
+mean heading_reg_loss: 0.009215
+mean loss: 14.764419
+mean neg_ratio: 0.383008
+mean obj_acc: 0.771900
+mean objectness_loss: 0.257053
+mean pos_ratio: 0.119189
+mean sem_cls_loss: 1.685287
+mean size_cls_loss: 1.698091
+mean size_reg_loss: 0.044864
+mean vote_loss: 0.769452
+ ---- batch: 050 ----
+mean box_loss: 0.344779
+mean center_loss: 0.108387
+mean heading_cls_loss: 0.366209
+mean heading_reg_loss: 0.006605
+mean loss: 12.601730
+mean neg_ratio: 0.220850
+mean obj_acc: 0.687310
+mean objectness_loss: 0.306314
+mean pos_ratio: 0.195117
+mean sem_cls_loss: 1.465876
+mean size_cls_loss: 1.473449
+mean size_reg_loss: 0.045822
+mean vote_loss: 0.615649
+ ---- batch: 060 ----
+mean box_loss: 0.279008
+mean center_loss: 0.086212
+mean heading_cls_loss: 0.243606
+mean heading_reg_loss: 0.005902
+mean loss: 10.292878
+mean neg_ratio: 0.116455
+mean obj_acc: 0.773902
+mean objectness_loss: 0.212816
+mean pos_ratio: 0.287646
+mean sem_cls_loss: 1.295902
+mean size_cls_loss: 1.300498
+mean size_reg_loss: 0.032484
+mean vote_loss: 0.514282
+ ---- batch: 070 ----
+mean box_loss: 0.246022
+mean center_loss: 0.070092
+mean heading_cls_loss: 0.169879
+mean heading_reg_loss: 0.004744
+mean loss: 8.706225
+mean neg_ratio: 0.044434
+mean obj_acc: 0.898344
+mean objectness_loss: 0.118892
+mean pos_ratio: 0.395313
+mean sem_cls_loss: 1.226022
+mean size_cls_loss: 1.225164
+mean size_reg_loss: 0.031681
+mean vote_loss: 0.442553
+ ---- batch: 080 ----
+mean box_loss: 0.200683
+mean center_loss: 0.059051
+mean heading_cls_loss: 0.124818
+mean heading_reg_loss: 0.003823
+mean loss: 7.328188
+mean neg_ratio: 0.028467
+mean obj_acc: 0.941903
+mean objectness_loss: 0.067368
+mean pos_ratio: 0.467480
+mean sem_cls_loss: 0.957790
+mean size_cls_loss: 0.954667
+mean size_reg_loss: 0.029861
+mean vote_loss: 0.402673
+ ---- batch: 090 ----
+mean box_loss: 0.177780
+mean center_loss: 0.049778
+mean heading_cls_loss: 0.100544
+mean heading_reg_loss: 0.003378
+mean loss: 6.663483
+mean neg_ratio: 0.018115
+mean obj_acc: 0.967181
+mean objectness_loss: 0.043984
+mean pos_ratio: 0.543359
+mean sem_cls_loss: 0.901583
+mean size_cls_loss: 0.884944
+mean size_reg_loss: 0.026076
+mean vote_loss: 0.376418
+ ---- batch: 100 ----
+mean box_loss: 0.185302
+mean center_loss: 0.045337
+mean heading_cls_loss: 0.087152
+mean heading_reg_loss: 0.002665
+mean loss: 6.472767
+mean neg_ratio: 0.005859
+mean obj_acc: 0.990615
+mean objectness_loss: 0.027659
+mean pos_ratio: 0.631738
+mean sem_cls_loss: 1.033323
+mean size_cls_loss: 1.005643
+mean size_reg_loss: 0.028021
+mean vote_loss: 0.344813
+ ---- batch: 110 ----
+mean box_loss: 0.141524
+mean center_loss: 0.039839
+mean heading_cls_loss: 0.062550
+mean heading_reg_loss: 0.002399
+mean loss: 5.361167
+mean neg_ratio: 0.002539
+mean obj_acc: 0.996566
+mean objectness_loss: 0.016936
+mean pos_ratio: 0.713379
+mean sem_cls_loss: 0.700942
+mean size_cls_loss: 0.696842
+mean size_reg_loss: 0.023346
+mean vote_loss: 0.316031
+ ---- batch: 120 ----
+mean box_loss: 0.139800
+mean center_loss: 0.035645
+mean heading_cls_loss: 0.048961
+mean heading_reg_loss: 0.001892
+mean loss: 5.310818
+mean neg_ratio: 0.002393
+mean obj_acc: 0.996513
+mean objectness_loss: 0.013251
+mean pos_ratio: 0.718018
+mean sem_cls_loss: 0.735389
+mean size_cls_loss: 0.730239
+mean size_reg_loss: 0.024343
+mean vote_loss: 0.311117
+eval mean box_loss: 0.169561
+eval mean center_loss: 0.053936
+eval mean heading_cls_loss: 0.051450
+eval mean heading_reg_loss: 0.001633
+eval mean loss: 6.336466
+eval mean neg_ratio: 0.018029
+eval mean obj_acc: 0.972018
+eval mean objectness_loss: 0.032675
+eval mean pos_ratio: 0.635780
+eval mean sem_cls_loss: 0.831200
+eval mean size_cls_loss: 0.857511
+eval mean size_reg_loss: 0.023096
+eval mean vote_loss: 0.364628
+eval airplane Average Precision: 0.305705
+eval car Average Precision: 0.319159
+eval chair Average Precision: 0.437700
+eval guitar Average Precision: 0.000000
+eval knife Average Precision: 0.000000
+eval lamp Average Precision: 0.046849
+eval laptop Average Precision: 0.121363
+eval motorbike Average Precision: 0.009408
+eval pistol Average Precision: 0.000000
+eval table Average Precision: 0.473957
+eval mAP: 0.171414
+eval airplane Recall: 0.814433
+eval car Recall: 0.875000
+eval chair Recall: 0.954023
+eval guitar Recall: 0.000000
+eval knife Recall: 0.000000
+eval lamp Recall: 0.642857
+eval laptop Recall: 0.875000
+eval motorbike Recall: 0.285714
+eval pistol Recall: 0.000000
+eval table Recall: 0.854839
+eval AR: 0.530187
+**** EPOCH 001 ****
+Current learning rate: 0.001000
+Current BN decay momentum: 0.500000
+2021-10-10 18:31:25.416617
+ ---- batch: 010 ----
+mean box_loss: 0.136563
+mean center_loss: 0.035629
+mean heading_cls_loss: 0.034817
+mean heading_reg_loss: 0.001598
+mean loss: 5.154002
+mean neg_ratio: 0.003760
+mean obj_acc: 0.994956
+mean objectness_loss: 0.011566
+mean pos_ratio: 0.751221
+mean sem_cls_loss: 0.727043
+mean size_cls_loss: 0.723460
+mean size_reg_loss: 0.023508
+mean vote_loss: 0.300350
+ ---- batch: 020 ----
+mean box_loss: 0.125187
+mean center_loss: 0.033658
+mean heading_cls_loss: 0.032130
+mean heading_reg_loss: 0.001312
+mean loss: 4.810854
+mean neg_ratio: 0.001953
+mean obj_acc: 0.997525
+mean objectness_loss: 0.008649
+mean pos_ratio: 0.787988
+mean sem_cls_loss: 0.630802
+mean size_cls_loss: 0.624712
+mean size_reg_loss: 0.024533
+mean vote_loss: 0.288493
+ ---- batch: 030 ----
+mean box_loss: 0.112629
+mean center_loss: 0.030409
+mean heading_cls_loss: 0.028073
+mean heading_reg_loss: 0.001267
+mean loss: 4.505863
+mean neg_ratio: 0.001514
+mean obj_acc: 0.998118
+mean objectness_loss: 0.007389
+mean pos_ratio: 0.816504
+mean sem_cls_loss: 0.543444
+mean size_cls_loss: 0.542926
+mean size_reg_loss: 0.023852
+mean vote_loss: 0.279919
+ ---- batch: 040 ----
+mean box_loss: 0.098552
+mean center_loss: 0.026631
+mean heading_cls_loss: 0.025306
+mean heading_reg_loss: 0.001246
+mean loss: 4.162723
+mean neg_ratio: 0.001855
+mean obj_acc: 0.997830
+mean objectness_loss: 0.006711
+mean pos_ratio: 0.844629
+mean sem_cls_loss: 0.482974
+mean size_cls_loss: 0.480134
+mean size_reg_loss: 0.020132
+mean vote_loss: 0.266068
+ ---- batch: 050 ----
+mean box_loss: 0.100121
+mean center_loss: 0.025023
+mean heading_cls_loss: 0.022035
+mean heading_reg_loss: 0.001121
+mean loss: 4.184453
+mean neg_ratio: 0.000488
+mean obj_acc: 0.999438
+mean objectness_loss: 0.004745
+mean pos_ratio: 0.845410
+mean sem_cls_loss: 0.503739
+mean size_cls_loss: 0.501774
+mean size_reg_loss: 0.021596
+mean vote_loss: 0.265578
+ ---- batch: 060 ----
+mean box_loss: 0.099204
+mean center_loss: 0.024948
+mean heading_cls_loss: 0.017883
+mean heading_reg_loss: 0.001206
+mean loss: 4.012133
+mean neg_ratio: 0.000537
+mean obj_acc: 0.999386
+mean objectness_loss: 0.004362
+mean pos_ratio: 0.874219
+mean sem_cls_loss: 0.498575
+mean size_cls_loss: 0.497147
+mean size_reg_loss: 0.021547
+mean vote_loss: 0.249970
+ ---- batch: 070 ----
+mean box_loss: 0.096444
+mean center_loss: 0.024186
+mean heading_cls_loss: 0.017413
+mean heading_reg_loss: 0.001026
+mean loss: 4.006309
+mean neg_ratio: 0.000977
+mean obj_acc: 0.998896
+mean objectness_loss: 0.004464
+mean pos_ratio: 0.871191
+mean sem_cls_loss: 0.441818
+mean size_cls_loss: 0.447891
+mean size_reg_loss: 0.024702
+mean vote_loss: 0.257773
+ ---- batch: 080 ----
+mean box_loss: 0.099792
+mean center_loss: 0.022562
+mean heading_cls_loss: 0.017395
+mean heading_reg_loss: 0.001040
+mean loss: 4.002976
+mean neg_ratio: 0.000195
+mean obj_acc: 0.999773
+mean objectness_loss: 0.003565
+mean pos_ratio: 0.897949
+mean sem_cls_loss: 0.542803
+mean size_cls_loss: 0.544588
+mean size_reg_loss: 0.019992
+mean vote_loss: 0.244443
+ ---- batch: 090 ----
+mean box_loss: 0.075062
+mean center_loss: 0.022447
+mean heading_cls_loss: 0.013328
+mean heading_reg_loss: 0.000941
+mean loss: 3.501073
+mean neg_ratio: 0.000244
+mean obj_acc: 0.999726
+mean objectness_loss: 0.003046
+mean pos_ratio: 0.902490
+mean sem_cls_loss: 0.330036
+mean size_cls_loss: 0.327257
+mean size_reg_loss: 0.017615
+mean vote_loss: 0.240519
+ ---- batch: 100 ----
+mean box_loss: 0.082986
+mean center_loss: 0.020025
+mean heading_cls_loss: 0.011352
+mean heading_reg_loss: 0.000866
+mean loss: 3.642845
+mean neg_ratio: 0.000342
+mean obj_acc: 0.999626
+mean objectness_loss: 0.002799
+mean pos_ratio: 0.896680
+mean sem_cls_loss: 0.417060
+mean size_cls_loss: 0.418961
+mean size_reg_loss: 0.019064
+mean vote_loss: 0.238193

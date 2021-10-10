@@ -48,9 +48,13 @@ class VotingModule(nn.Module):
         batch_size = seed_xyz.shape[0]
         num_seed = seed_xyz.shape[1]
         num_vote = num_seed*self.vote_factor
-        net = F.relu(self.bn1(self.conv1(seed_features))) 
+        print('seed_features:',seed_features.shape)
+        net = F.relu(self.bn1(self.conv1(seed_features)))
+        print('net:', net.shape)
         net = F.relu(self.bn2(self.conv2(net))) 
+        print('net:', net.shape)
         net = self.conv3(net) # (batch_size, (3+out_dim)*vote_factor, num_seed)
+        print('net:', net.shape)
                 
         net = net.transpose(2,1).view(batch_size, num_seed, self.vote_factor, 3+self.out_dim)
         offset = net[:,:,:,0:3]

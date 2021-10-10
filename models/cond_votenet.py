@@ -10,6 +10,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(BASE_DIR)
 from backbone_module import Pointnet2Backbone
 from voting_module import VotingModule
+from cond_voting_module import CondVotingModule
 from proposal_module import ProposalModule
 from dump_helper import dump_results
 from loss_helper import get_loss
@@ -37,7 +38,7 @@ class CondVoteNet(nn.Module):
     def __init__(self,
                  num_class, num_heading_bin, num_size_cluster, mean_size_arr,
                  input_feature_dim=0, num_proposal=128, vote_factor=1, sampling='vote_fps',
-                 use_two_backbones: bool = False, use_learnable_cond: bool = False):
+                 use_two_backbones: bool = False):
         super().__init__()
 
         self.num_class = num_class
@@ -58,17 +59,9 @@ class CondVoteNet(nn.Module):
             print('[I] - build another backbone!')
             self.cond_backbone_net = Pointnet2Backbone(input_feature_dim=self.input_feature_dim)
 
-        self.use_learnable_cond = use_learnable_cond
-        if use_learnable_cond:
-            print('[I] - use learnable cond signal!')
-            self.cond_conv1 = torch.nn.Conv1d(256, 256, 1)
-            self.cond_conv2 = torch.nn.Conv1d(256, 256, 1)
-            self.cond_conv3 = torch.nn.Conv1d(256, 256, 1)
-            self.cond_bn1 = torch.nn.BatchNorm1d(256)
-            self.cond_bn2 = torch.nn.BatchNorm1d(256)
-
         # Hough voting
-        self.vgen = VotingModule(self.vote_factor, 256)
+        #self.vgen = VotingModule(self.vote_factor, 256)
+        self.vgen = CondVotingModule(self.vote_factor, 512)
 
         # Vote aggregation and detection
         self.pnet = ProposalModule(num_class, num_heading_bin, num_size_cluster,
@@ -99,15 +92,9 @@ class CondVoteNet(nn.Module):
         else:
             cond_end_points = self.backbone_net(inputs['cond_point_clouds'], cond_end_points)
 
-        if not self.use_learnable_cond:
-            end_points['fp2_features'] = end_points['fp2_features'] + cond_end_points['fp2_features']
+        #end_points['fp2_features'] = end_points['fp2_features'] + cond_end_points['fp2_features']
+        end_points['fp2_features'] = torch.cat((end_points['fp2_features'], cond_end_points['fp2_features']), axis=1)
 
-        if self.use_learnable_cond:
-            cond_fp2_features = F.relu(self.cond_bn1(self.cond_conv1(cond_end_points['fp2_features'])))
-            cond_fp2_features = F.relu(self.cond_bn2(self.cond_conv2(cond_fp2_features)))
-            cond_fp2_features = self.cond_conv3(cond_fp2_features)
-            end_points['fp2_features'] = end_points['fp2_features'] + cond_fp2_features
-                
         # --------- HOUGH VOTING ---------
         xyz = end_points['fp2_xyz']
         features = end_points['fp2_features']

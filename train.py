@@ -67,8 +67,6 @@ parser.add_argument('--use_rand_votes', action='store_true', default=False,
                          'The rest vote to a random point.')
 parser.add_argument('--use_two_backbones', action='store_true', default=False,
                     help='Use another pointnet++ backbone net for the conditional point cloud.')
-parser.add_argument('--use_learnable_cond', action='store_true', default=False,
-                    help='Use a special layer to process the conditional point cloud deep features.')
 parser.add_argument('--use_sunrgbd_v2', action='store_true', help='Use V2 box labels for SUN RGB-D dataset')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite existing log and dump folders.')
 parser.add_argument('--dump_results', action='store_true', help='Dump results.')
@@ -198,7 +196,6 @@ if FLAGS.model == 'cond_votenet':
         vote_factor=FLAGS.vote_factor,
         sampling=FLAGS.cluster_sampling,
         use_two_backbones=FLAGS.use_two_backbones,
-        use_learnable_cond=FLAGS.use_learnable_cond
     )
 else:
     net = Detector(
