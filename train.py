@@ -137,14 +137,14 @@ elif FLAGS.dataset == 'shapenet':
     TRAIN_DATASET = ShapenetDetectionVotesDataset(
         'train', num_points=NUM_POINT,
         augment=False,
-        use_height=False,
+        use_height=(not FLAGS.no_height),
         use_cond_votes=FLAGS.use_cond_votes,
         use_rand_votes=FLAGS.use_rand_votes
     )
     TEST_DATASET = ShapenetDetectionVotesDataset(
         'val', num_points=NUM_POINT,
         augment=False,
-        use_height=False,
+        use_height=(not FLAGS.no_height),
         use_cond_votes=FLAGS.use_cond_votes,
         use_rand_votes=FLAGS.use_rand_votes
     )
