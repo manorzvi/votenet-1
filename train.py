@@ -60,6 +60,11 @@ parser.add_argument('--lr_decay_steps', default='80,120,160', help='When to deca
 parser.add_argument('--lr_decay_rates', default='0.1,0.1,0.1', help='Decay rates for lr decay [default: 0.1,0.1,0.1]')
 parser.add_argument('--no_height', action='store_true', help='Do NOT use height signal in input.')
 parser.add_argument('--use_color', action='store_true', help='Use RGB color in input.')
+parser.add_argument('--use_cond_votes', action='store_true', default=False,
+                    help='Use conditional votes label (only points associated with the conditioned object vote)')
+parser.add_argument('--use_rand_votes', action='store_true', default=False,
+                    help='All points can vote, but only the points associated with the conditioned object vote to the center.'
+                         'The rest vote to a random point.')
 parser.add_argument('--use_sunrgbd_v2', action='store_true', help='Use V2 box labels for SUN RGB-D dataset')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite existing log and dump folders.')
 parser.add_argument('--dump_results', action='store_true', help='Dump results.')
@@ -123,6 +128,26 @@ if FLAGS.dataset == 'sunrgbd':
         augment=False,
         use_color=FLAGS.use_color, use_height=(not FLAGS.no_height),
         use_v1=(not FLAGS.use_sunrgbd_v2))
+elif FLAGS.dataset == 'shapenet':
+    sys.path.append(os.path.join(ROOT_DIR, 'shapenet'))
+    from shapenet_detection_dataset import ShapenetDetectionVotesDataset
+    from model_util_shapenet import ShapenetDatasetConfig
+
+    DATASET_CONFIG = ShapenetDatasetConfig()
+    TRAIN_DATASET = ShapenetDetectionVotesDataset(
+        'train', num_points=NUM_POINT,
+        augment=False,
+        use_height=False,
+        use_cond_votes=FLAGS.use_cond_votes,
+        use_rand_votes=FLAGS.use_rand_votes
+    )
+    TEST_DATASET = ShapenetDetectionVotesDataset(
+        'val', num_points=NUM_POINT,
+        augment=False,
+        use_height=False,
+        use_cond_votes=FLAGS.use_cond_votes,
+        use_rand_votes=FLAGS.use_rand_votes
+    )
 elif FLAGS.dataset == 'scannet':
     sys.path.append(os.path.join(ROOT_DIR, 'scannet'))
     from scannet_detection_dataset import ScannetDetectionDataset, MAX_NUM_OBJ
@@ -137,13 +162,12 @@ elif FLAGS.dataset == 'scannet':
 else:
     print('Unknown dataset %s. Exiting...'%(FLAGS.dataset))
     exit(-1)
-print(len(TRAIN_DATASET), len(TEST_DATASET))
+print(f' |TRAIN_DATASET|={len(TRAIN_DATASET)}', f'|TEST_DATASET|={len(TEST_DATASET)}')
 TRAIN_DATALOADER = DataLoader(TRAIN_DATASET, batch_size=BATCH_SIZE,
     shuffle=True, num_workers=4, worker_init_fn=my_worker_init_fn)
 TEST_DATALOADER = DataLoader(TEST_DATASET, batch_size=BATCH_SIZE,
     shuffle=True, num_workers=4, worker_init_fn=my_worker_init_fn)
-print(len(TRAIN_DATALOADER), len(TEST_DATALOADER))
-
+print(f' |TRAIN_DATALOADER|={len(TRAIN_DATALOADER)}', f'|TEST_DATALOADER|={len(TEST_DATALOADER)}')
 # Init the model and optimzier
 MODEL = importlib.import_module(FLAGS.model) # import network module
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -208,10 +232,16 @@ TEST_VISUALIZER = TfVisualizer(FLAGS, 'test')
 
 
 # Used for AP calculation
-CONFIG_DICT = {'remove_empty_box':False, 'use_3d_nms':True,
-    'nms_iou':0.25, 'use_old_type_nms':False, 'cls_nms':True,
-    'per_class_proposal': True, 'conf_thresh':0.05,
-    'dataset_config':DATASET_CONFIG}
+CONFIG_DICT = {
+    'remove_empty_box': False,
+    'use_3d_nms': True,
+    'nms_iou': 0.25,
+    'use_old_type_nms': False,
+    'cls_nms': True,
+    'per_class_proposal': True,
+    'conf_thresh': 0.05,
+    'dataset_config': DATASET_CONFIG
+}
 
 # ------------------------------------------------------------------------- GLOBAL CONFIG END
 

@@ -216,7 +216,7 @@ class ShapenetDetectionVotesDataset(Dataset):
 
 if __name__ == '__main__':
 
-    ds = ShapenetDetectionVotesDataset(num_points=5000, use_height=False, use_cond_votes=True, use_rand_votes=True, augment=False)
+    ds = ShapenetDetectionVotesDataset(num_points=5000, use_height=False, use_cond_votes=False, use_rand_votes=False, augment=False)
     batch_size = 4
     dl = DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0)
 
