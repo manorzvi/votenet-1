@@ -3,7 +3,7 @@ from typing import List
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-from utils import get_3dcorners_from_bbox
+from shapenet.utils import get_3dcorners_from_bbox
 
 
 def draw_pc(pc: np.ndarray, ax, color: str, size: int):
