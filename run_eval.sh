@@ -1,0 +1,1 @@
+python eval.py --dataset shapenet --model cond_votenet --checkpoint_path log_shapenet/checkpoint.tar --dump_dir eval_shapenet --no_height --cluster_sampling seed_fps --use_3d_nms --use_cls_nms --per_class_proposal
