@@ -49,6 +49,9 @@ parser.add_argument('--no_height', action='store_true', help='Do NOT use height 
 parser.add_argument('--use_color', action='store_true', help='Use RGB color in input.')
 parser.add_argument('--use_cond_votes', action='store_true', default=False,
                     help='Use conditional votes label (only points associated with the conditioned object vote)')
+parser.add_argument('--use_cond_bboxs', action='store_true', default=False,
+                    help='Use conditional bounding boxes.'
+                         'Only the objects associated with the condition object are not masked.')
 parser.add_argument('--use_rand_votes', action='store_true', default=False,
                     help='All points can vote, but only the points associated with the conditioned object vote to the center.'
                          'The rest vote to a random point.')
@@ -61,6 +64,7 @@ FLAGS = parser.parse_args()
 
 assert not (FLAGS.use_rand_votes and not FLAGS.use_cond_votes), "If use_rand_votes=True, use_cond_votes=True is a must!"
 assert not (FLAGS.model == 'cond_votenet' and FLAGS.dataset != 'shapenet'), "If model=cond_votenet, dataset=shapenet is a must!"
+assert not (FLAGS.dataset == 'shapenet' and not FLAGS.no_height), "height is not supported in shapenet dataset"
 
 # ------------------------------------------------------------------------- GLOBAL CONFIG BEG
 BATCH_SIZE = FLAGS.batch_size
@@ -129,16 +133,16 @@ elif FLAGS.dataset == 'shapenet':
     TRAIN_DATASET = ShapenetDetectionVotesDataset(
         'train', num_points=NUM_POINT,
         augment=False,
-        use_height=(not FLAGS.no_height),
         use_cond_votes=FLAGS.use_cond_votes,
-        use_rand_votes=FLAGS.use_rand_votes
+        use_rand_votes=FLAGS.use_rand_votes,
+        use_cond_bboxs=FLAGS.use_cond_bboxs
     )
     TEST_DATASET = ShapenetDetectionVotesDataset(
         'val', num_points=NUM_POINT,
         augment=False,
-        use_height=(not FLAGS.no_height),
         use_cond_votes=FLAGS.use_cond_votes,
-        use_rand_votes=FLAGS.use_rand_votes
+        use_rand_votes=FLAGS.use_rand_votes,
+        use_cond_bboxs=FLAGS.use_cond_bboxs
     )
 elif FLAGS.dataset == 'scannet':
     sys.path.append(os.path.join(ROOT_DIR, 'scannet'))

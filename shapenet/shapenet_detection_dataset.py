@@ -25,7 +25,7 @@ MAX_NUM_OBJ = 64  # maximum number of objects allowed per scene
 
 class ShapenetDetectionVotesDataset(Dataset):
     def __init__(self, split_set='train', num_points=20000, cond_obj_num_points=2000,
-                 use_height=False, use_cond_votes=False, use_rand_votes=False, augment=False):
+                 use_cond_votes=False, use_rand_votes=False, use_cond_bboxs=False, augment=False):
 
         assert not use_rand_votes or use_cond_votes, "use_rand_votes allowed with use_cond_votes only"
 
@@ -37,13 +37,15 @@ class ShapenetDetectionVotesDataset(Dataset):
         self.num_points = num_points
         self.cond_obj_num_points = cond_obj_num_points
         self.augment = augment
-        self.use_height = use_height
         self.use_cond_votes = use_cond_votes
         if use_cond_votes:
             print(f'[I] - shapenet {split_set} dataset with cond_votes!')
         self.use_rand_votes = use_rand_votes
         if use_rand_votes:
             print(f'[I] - shapenet {split_set} dataset with rand_votes!')
+        self.use_cond_bboxs = use_cond_bboxs
+        if use_cond_bboxs:
+            print(f'[I] - shapenet {split_set} dataset with cond_bboxs!')
 
     def __len__(self):
         return len(self.scan_names)
@@ -126,12 +128,6 @@ class ShapenetDetectionVotesDataset(Dataset):
 
             run_ind += obj_n_pts
 
-        if self.use_height:
-            floor_height = np.percentile(pc[:, 2], 0.99)
-            height = pc[:, 2] - floor_height
-            pc = np.concatenate([pc, np.expand_dims(height, 1)], 1)  # (N,4)
-
-        # ------------------------------- DATA AUGMENTATION ------------------------------
         if self.augment:
             if np.random.random() > 0.5:
                 # Flipping along the YZ plane
@@ -165,10 +161,7 @@ class ShapenetDetectionVotesDataset(Dataset):
             pc_votes[:, 1:4] *= scale_ratio
             pc_votes[:, 4:7] *= scale_ratio
             pc_votes[:, 7:10] *= scale_ratio
-            if self.use_height:
-                pc[:, -1] *= scale_ratio[0, 0]
 
-        # ------------------------------- LABELS ------------------------------
         box3d_centers = np.zeros((MAX_NUM_OBJ, 3))
         box3d_sizes = np.zeros((MAX_NUM_OBJ, 3))
         angle_classes = np.zeros((MAX_NUM_OBJ,))
@@ -176,7 +169,10 @@ class ShapenetDetectionVotesDataset(Dataset):
         size_classes = np.zeros((MAX_NUM_OBJ,))
         size_residuals = np.zeros((MAX_NUM_OBJ, 3))
         label_mask = np.zeros(MAX_NUM_OBJ)
-        label_mask[0:bboxes.shape[0]] = 1
+        if self.use_cond_bboxs:
+            label_mask[cond_obj_ind] = 1
+        else:
+            label_mask[0:bboxes.shape[0]] = 1
         max_bboxes = np.zeros((MAX_NUM_OBJ, 8))
         max_bboxes[0:bboxes.shape[0], :] = bboxes
 
@@ -220,7 +216,7 @@ class ShapenetDetectionVotesDataset(Dataset):
 
 if __name__ == '__main__':
 
-    ds = ShapenetDetectionVotesDataset(num_points=5000, use_height=False, use_cond_votes=False, use_rand_votes=False, augment=False)
+    ds = ShapenetDetectionVotesDataset(num_points=5000, use_cond_votes=True, use_rand_votes=False, use_cond_bboxs=True, augment=False)
     batch_size = 4
     dl = DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0)
 
@@ -233,9 +229,11 @@ if __name__ == '__main__':
             pc_votes = minibatch['vote_label'][j].cpu().numpy()
             pc_votes_mask = minibatch['vote_label_mask'][j].cpu().numpy()
 
-            n_obj = int(np.sum(bboxes_mask).item())
             corners3d = np.zeros((bboxes.shape[0], 8, 3))
-            for k in range(n_obj):
+            for k in range(bboxes_mask.shape[0]):
+                if bboxes_mask[k] == 0:
+                    print(f'[I] - skipping object bounding box {k}')
+                    continue
                 bbox = bboxes[k]
                 corner3d = get_3dcorners_from_bbox(bbox)
                 corners3d[k, :, :] = corner3d
@@ -260,7 +258,10 @@ if __name__ == '__main__':
 
             ax = draw_pc(scene_pc, ax, pc_color, pc_size)
             ax = draw_pc(cond_pc, ax, cond_pc_color, pc_size)
-            for k in range(n_obj):
+            for k in range(bboxes_mask.shape[0]):
+                if bboxes_mask[k] == 0:
+                    print(f'[I] - skipping object bounding box {k}')
+                    continue
                 corner3d = corners3d[k]
                 ax = draw_corners3d(corner3d, ax, corners3d_color, corners3d_size)
             ax = draw_votes(scene_pc[:, 0:3], pc_votes[:, 0:3], pc_votes_mask, ax, votes_color, votes_size)
