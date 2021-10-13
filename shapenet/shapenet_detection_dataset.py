@@ -39,7 +39,11 @@ class ShapenetDetectionVotesDataset(Dataset):
         self.augment = augment
         self.use_height = use_height
         self.use_cond_votes = use_cond_votes
+        if use_cond_votes:
+            print(f'[I] - shapenet {split_set} dataset with cond_votes!')
         self.use_rand_votes = use_rand_votes
+        if use_rand_votes:
+            print(f'[I] - shapenet {split_set} dataset with rand_votes!')
 
     def __len__(self):
         return len(self.scan_names)
