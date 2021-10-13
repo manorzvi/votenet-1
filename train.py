@@ -64,7 +64,6 @@ FLAGS = parser.parse_args()
 
 assert not (FLAGS.use_rand_votes and not FLAGS.use_cond_votes), "If use_rand_votes=True, use_cond_votes=True is a must!"
 assert not (FLAGS.model == 'cond_votenet' and FLAGS.dataset != 'shapenet'), "If model=cond_votenet, dataset=shapenet is a must!"
-assert not (FLAGS.dataset == 'shapenet' and not FLAGS.no_height), "height is not supported in shapenet dataset"
 
 # ------------------------------------------------------------------------- GLOBAL CONFIG BEG
 BATCH_SIZE = FLAGS.batch_size
@@ -183,7 +182,7 @@ if FLAGS.model == 'cond_votenet':
         num_size_cluster=DATASET_CONFIG.num_size_cluster,
         mean_size_arr=DATASET_CONFIG.mean_size_arr,
         num_proposal=FLAGS.num_target,
-        input_feature_dim=num_input_channel,
+        input_feature_dim=0,
         vote_factor=FLAGS.vote_factor,
         sampling=FLAGS.cluster_sampling,
         use_two_backbones=FLAGS.use_two_backbones,

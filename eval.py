@@ -96,7 +96,6 @@ elif FLAGS.dataset == 'shapenet':
     TEST_DATASET = ShapenetDetectionVotesDataset(
         'val', num_points=NUM_POINT,
         augment=False,
-        use_height=(not FLAGS.no_height),
         use_cond_votes=FLAGS.use_cond_votes,
         use_rand_votes=FLAGS.use_rand_votes
     )
@@ -135,7 +134,7 @@ if FLAGS.model == 'cond_votenet':
         num_size_cluster=DATASET_CONFIG.num_size_cluster,
         mean_size_arr=DATASET_CONFIG.mean_size_arr,
         num_proposal=FLAGS.num_target,
-        input_feature_dim=num_input_channel,
+        input_feature_dim=0,
         vote_factor=FLAGS.vote_factor,
         sampling=FLAGS.cluster_sampling,
         use_two_backbones=FLAGS.use_two_backbones,

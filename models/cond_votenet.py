@@ -83,7 +83,6 @@ class CondVoteNet(nn.Module):
             end_points: dict
         """
         end_points = {}
-
         end_points = self.backbone_net(inputs['point_clouds'], end_points)
 
         cond_end_points = {}
