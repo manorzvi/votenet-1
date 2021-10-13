@@ -31,6 +31,7 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
     Returns:
         None
     '''
+    print('[I] - dump results!')
     if not os.path.exists(dump_dir):
         os.system('mkdir %s'%(dump_dir))
 

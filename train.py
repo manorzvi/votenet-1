@@ -3,19 +3,6 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-""" Training routine for 3D object detection with SUN RGB-D or ScanNet.
-
-Sample usage:
-python train.py --dataset sunrgbd --log_dir log_sunrgbd
-
-To use Tensorboard:
-At server:
-    python -m tensorboard.main --logdir=<log_dir_name> --port=6006
-At local machine:
-    ssh -L 1237:localhost:6006 <server_name>
-Then go to local browser and type:
-    localhost:1237
-"""
 
 import os
 import sys
