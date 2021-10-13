@@ -26,6 +26,7 @@ class CondVotingModule(nn.Module):
                 number of channels of vote features
         """
         super().__init__()
+        print('[I] - use cond_voting_module!')
         self.vote_factor = vote_factor
         self.in_dim = seed_feature_dim
         self.out_dim = self.in_dim # due to residual feature, in_dim has to be == out_dim
@@ -48,13 +49,9 @@ class CondVotingModule(nn.Module):
         batch_size = seed_xyz.shape[0]
         num_seed = seed_xyz.shape[1]
         num_vote = num_seed*self.vote_factor
-#        print('seed_features:',seed_features.shape)
         net = F.relu(self.bn1(self.conv1(seed_features)))
-#        print('net:', net.shape)
         net = F.relu(self.bn2(self.conv2(net))) 
-#        print('net:', net.shape)
         net = self.conv3(net) # (batch_size, (3+out_dim)*vote_factor, num_seed)
-#        print('net:', net.shape)
                 
         net = net.transpose(2,1).view(batch_size, num_seed, self.vote_factor, 3+int(self.out_dim/2))
         offset = net[:,:,:,0:3]
@@ -62,8 +59,6 @@ class CondVotingModule(nn.Module):
         vote_xyz = vote_xyz.contiguous().view(batch_size, num_vote, 3)
         
         residual_features = net[:,:,:,3:] # (batch_size, num_seed, vote_factor, out_dim)
-#        print('residual_features:', residual_features.shape)
-#        print('seed_features:', seed_features[:, 0:256, :].transpose(2,1).unsqueeze(2).shape)
         vote_features = seed_features[:, 0:256, :].transpose(2,1).unsqueeze(2) + residual_features
         vote_features = vote_features.contiguous().view(batch_size, num_vote, int(self.out_dim/2))
         vote_features = vote_features.transpose(2,1).contiguous()

@@ -1,0 +1,6 @@
+CUDA_VISIBLE_DEVICES=0 python train.py --dataset shapenet --model cond_votenet --log_dir log_shapenet                       --dump_results --dump_dir dump_shapenet                       --no_height
+CUDA_VISIBLE_DEVICES=0 python train.py --dataset shapenet --model cond_votenet --log_dir log_shapenet_cond_votes            --dump_results --dump_dir dump_shapenet_cond_votes            --no_height --use_cond_votes
+CUDA_VISIBLE_DEVICES=0 python train.py --dataset shapenet --model cond_votenet --log_dir log_shapenet_cond_votes_rand_votes --dump_results --dump_dir dump_shapenet_cond_votes_rand_votes --no_height --use_cond_votes --use_rand_votes
+CUDA_VISIBLE_DEVICES=0 python train.py --dataset shapenet --model cond_votenet --log_dir log_shapenet                       --dump_results --dump_dir dump_shapenet                       --no_height
+CUDA_VISIBLE_DEVICES=0 python train.py --dataset shapenet --model cond_votenet --log_dir log_shapenet_cond_votes            --dump_results --dump_dir dump_shapenet_cond_votes            --no_height --use_cond_votes                  --use_two_backbones
+CUDA_VISIBLE_DEVICES=0 python train.py --dataset shapenet --model cond_votenet --log_dir log_shapenet_cond_votes_rand_votes --dump_results --dump_dir dump_shapenet_cond_votes_rand_votes --no_height --use_cond_votes --use_rand_votes --use_two_backbones

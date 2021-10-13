@@ -40,7 +40,7 @@ class CondVoteNet(nn.Module):
                  input_feature_dim=0, num_proposal=128, vote_factor=1, sampling='vote_fps',
                  use_two_backbones: bool = False):
         super().__init__()
-
+        print('[I] - use cond_votenet!')
         self.num_class = num_class
         self.num_heading_bin = num_heading_bin
         self.num_size_cluster = num_size_cluster

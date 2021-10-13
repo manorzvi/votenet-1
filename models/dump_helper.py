@@ -107,7 +107,8 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
 
     gt_votes = end_points['vote_label'].detach().cpu().numpy() # (B,N,9)
     gt_vote_mask = end_points['vote_label_mask'].detach().cpu().numpy() # (B,N,)
-    gt_vote_mask = np.repeat(gt_vote_mask, repeats=9, axis=1)
+    gt_vote_mask = np.expand_dims(gt_vote_mask, 2)
+    gt_vote_mask = np.repeat(gt_vote_mask, repeats=9, axis=2)
     gt_masked_votes = gt_votes * gt_vote_mask
 
     for i in range(batch_size):
