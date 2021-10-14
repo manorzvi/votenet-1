@@ -25,9 +25,14 @@ MAX_NUM_OBJ = 64  # maximum number of objects allowed per scene
 
 class ShapenetDetectionVotesDataset(Dataset):
     def __init__(self, split_set='train', num_points=20000, cond_obj_num_points=2000,
-                 use_cond_votes=False, use_rand_votes=False, use_cond_bboxs=False, augment=False):
+                 use_cond_votes=False,
+                 use_neg_votes=False, neg_votes_factor=1.0,
+                 use_rand_votes=False, rand_votes_factor=1.0,
+                 use_cond_bboxs=False, augment=False):
 
-        assert not use_rand_votes or use_cond_votes, "use_rand_votes allowed with use_cond_votes only"
+        assert not (use_rand_votes and not use_cond_votes), "use_rand_votes allowed with use_cond_votes only"
+        assert not (use_neg_votes and not use_cond_votes), "use_neg_votes allowed with use_cond_votes only"
+        assert not (use_neg_votes and use_rand_votes), "use_rand_votes and use_neg_votes are mutually-exclusive"
 
         self.data_path = os.path.join(BASE_DIR, 'scenes', split_set)
         assert os.path.exists(self.data_path), f'{self.data_path} does not exist!'
@@ -37,12 +42,21 @@ class ShapenetDetectionVotesDataset(Dataset):
         self.num_points = num_points
         self.cond_obj_num_points = cond_obj_num_points
         self.augment = augment
+
         self.use_cond_votes = use_cond_votes
         if use_cond_votes:
             print(f'[I] - shapenet {split_set} dataset with cond_votes!')
+
+        self.use_neg_votes = use_neg_votes
+        self.neg_votes_factor = neg_votes_factor
+        if use_neg_votes:
+            print(f'[I] - shapenet {split_set} dataset with neg_votes with neg_votes_factor={neg_votes_factor}!')
+
         self.use_rand_votes = use_rand_votes
+        self.rand_votes_factor = rand_votes_factor
         if use_rand_votes:
-            print(f'[I] - shapenet {split_set} dataset with rand_votes!')
+            print(f'[I] - shapenet {split_set} dataset with rand_votes with rand_votes_factor={rand_votes_factor}!')
+
         self.use_cond_bboxs = use_cond_bboxs
         if use_cond_bboxs:
             print(f'[I] - shapenet {split_set} dataset with cond_bboxs!')
@@ -89,16 +103,18 @@ class ShapenetDetectionVotesDataset(Dataset):
 
         n_pts = pc.shape[0]
         pc_votes = np.zeros((n_pts, 10))
-        if not self.use_cond_votes or (self.use_cond_votes and self.use_rand_votes):
+        if not self.use_cond_votes or \
+                (self.use_cond_votes and self.use_rand_votes) or \
+                (self.use_cond_votes and self.use_neg_votes):
             pc_votes[:, 0] = 1
 
         if self.use_rand_votes:
             minx, maxx = np.min(pc[:, 0]), np.max(pc[:, 0])
             miny, maxy = np.min(pc[:, 1]), np.max(pc[:, 1])
             minz, maxz = np.min(pc[:, 2]), np.max(pc[:, 2])
-            rand_votesx = np.random.uniform(low=minx, high=maxx, size=(n_pts, 1))
-            rand_votesy = np.random.uniform(low=miny, high=maxy, size=(n_pts, 1))
-            rand_votesz = np.random.uniform(low=minz, high=maxz, size=(n_pts, 1))
+            rand_votesx = np.random.uniform(low=minx*self.rand_votes_factor, high=maxx*self.rand_votes_factor, size=(n_pts, 1))
+            rand_votesy = np.random.uniform(low=miny*self.rand_votes_factor, high=maxy*self.rand_votes_factor, size=(n_pts, 1))
+            rand_votesz = np.random.uniform(low=minz, high=maxz*self.rand_votes_factor, size=(n_pts, 1))
             rand_votes = np.zeros((n_pts, 3))
             rand_votes[:, 0] = rand_votesx[:, 0]
             rand_votes[:, 1] = rand_votesy[:, 0]
@@ -109,22 +125,26 @@ class ShapenetDetectionVotesDataset(Dataset):
             obj_pc = np.asarray(data['scene_pc'][i])
             obj_center = np.mean(obj_pc, axis=0, keepdims=True)
             obj_n_pts = obj_pc.shape[0]
-            if self.use_cond_votes and not self.use_rand_votes:
+
+            if self.use_cond_votes and not (self.use_rand_votes or self.use_neg_votes):
                 if i == cond_obj_ind:
                     pc_votes[run_ind:run_ind + obj_n_pts, 0] = 1
-            if not self.use_rand_votes:
-                pc_votes[run_ind:run_ind + obj_n_pts, 1:4]  = np.repeat(obj_center, repeats=obj_n_pts, axis=0) - obj_pc
-                pc_votes[run_ind:run_ind + obj_n_pts, 4:7]  = np.repeat(obj_center, repeats=obj_n_pts, axis=0) - obj_pc
-                pc_votes[run_ind:run_ind + obj_n_pts, 7:10] = np.repeat(obj_center, repeats=obj_n_pts, axis=0) - obj_pc
-            else:
-                if i == cond_obj_ind:
-                    pc_votes[run_ind:run_ind + obj_n_pts, 1:4]  = np.repeat(obj_center, repeats=obj_n_pts, axis=0) - obj_pc
-                    pc_votes[run_ind:run_ind + obj_n_pts, 4:7]  = np.repeat(obj_center, repeats=obj_n_pts, axis=0) - obj_pc
-                    pc_votes[run_ind:run_ind + obj_n_pts, 7:10] = np.repeat(obj_center, repeats=obj_n_pts, axis=0) - obj_pc
-                else:
+
+            pc_votes[run_ind:run_ind + obj_n_pts, 1:4] = np.repeat(obj_center, repeats=obj_n_pts, axis=0) - obj_pc
+            pc_votes[run_ind:run_ind + obj_n_pts, 4:7] = np.repeat(obj_center, repeats=obj_n_pts, axis=0) - obj_pc
+            pc_votes[run_ind:run_ind + obj_n_pts, 7:10] = np.repeat(obj_center, repeats=obj_n_pts, axis=0) - obj_pc
+
+            if self.use_rand_votes:
+                if i != cond_obj_ind:
                     pc_votes[run_ind:run_ind + obj_n_pts, 1:4] = rand_votes[run_ind:run_ind + obj_n_pts] - obj_pc
                     pc_votes[run_ind:run_ind + obj_n_pts, 4:7] = rand_votes[run_ind:run_ind + obj_n_pts] - obj_pc
                     pc_votes[run_ind:run_ind + obj_n_pts, 7:10] = rand_votes[run_ind:run_ind + obj_n_pts] - obj_pc
+
+            if self.use_neg_votes:
+                if i != cond_obj_ind:
+                    pc_votes[run_ind:run_ind + obj_n_pts, 1:10] = -pc_votes[run_ind:run_ind + obj_n_pts, 1:10] * self.neg_votes_factor
+                    # pc_votes[run_ind:run_ind + obj_n_pts, 4:7] = -pc_votes[run_ind:run_ind + obj_n_pts, 4:7]
+                    # pc_votes[run_ind:run_ind + obj_n_pts, 7:10] = -pc_votes[run_ind:run_ind + obj_n_pts, 7:10]
 
             run_ind += obj_n_pts
 
@@ -216,7 +236,13 @@ class ShapenetDetectionVotesDataset(Dataset):
 
 if __name__ == '__main__':
 
-    ds = ShapenetDetectionVotesDataset(num_points=5000, use_cond_votes=True, use_rand_votes=False, use_cond_bboxs=True, augment=False)
+    ds = ShapenetDetectionVotesDataset(
+        num_points=5000,
+        use_cond_votes=True,
+        use_neg_votes=True, neg_votes_factor=10.0,
+        use_rand_votes=False, rand_votes_factor=2.0,
+        use_cond_bboxs=True,
+        augment=False)
     batch_size = 4
     dl = DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0)
 
