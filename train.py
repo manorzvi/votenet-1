@@ -47,16 +47,27 @@ parser.add_argument('--lr_decay_steps', default='80,120,160', help='When to deca
 parser.add_argument('--lr_decay_rates', default='0.1,0.1,0.1', help='Decay rates for lr decay [default: 0.1,0.1,0.1]')
 parser.add_argument('--no_height', action='store_true', help='Do NOT use height signal in input.')
 parser.add_argument('--use_color', action='store_true', help='Use RGB color in input.')
+
 parser.add_argument('--use_cond_votes', action='store_true', default=False,
                     help='Use conditional votes label (only points associated with the conditioned object vote)')
+
+parser.add_argument('--use_neg_votes', action='store_true', default=False,
+                    help='All points can vote, but only the points associated with the conditioned object vote to the center.'
+                         'The rest vote to the negative direction.')
+parser.add_argument('--neg_votes_factor', type=float, default=1.0)
+
 parser.add_argument('--use_cond_bboxs', action='store_true', default=False,
                     help='Use conditional bounding boxes.'
                          'Only the objects associated with the condition object are not masked.')
+
 parser.add_argument('--use_rand_votes', action='store_true', default=False,
                     help='All points can vote, but only the points associated with the conditioned object vote to the center.'
                          'The rest vote to a random point.')
+parser.add_argument('--rand_votes_factor', type=float, default=1.0)
+
 parser.add_argument('--use_two_backbones', action='store_true', default=False,
                     help='Use another pointnet++ backbone net for the conditional point cloud.')
+
 parser.add_argument('--use_sunrgbd_v2', action='store_true', help='Use V2 box labels for SUN RGB-D dataset')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite existing log and dump folders.')
 parser.add_argument('--dump_results', action='store_true', help='Dump results.')
@@ -133,14 +144,16 @@ elif FLAGS.dataset == 'shapenet':
         'train', num_points=NUM_POINT,
         augment=False,
         use_cond_votes=FLAGS.use_cond_votes,
-        use_rand_votes=FLAGS.use_rand_votes,
+        use_rand_votes=FLAGS.use_rand_votes, rand_votes_factor=FLAGS.rand_votes_factor,
+        use_neg_votes=FLAGS.use_neg_votes, neg_votes_factor=FLAGS.neg_votes_factor,
         use_cond_bboxs=FLAGS.use_cond_bboxs
     )
     TEST_DATASET = ShapenetDetectionVotesDataset(
         'val', num_points=NUM_POINT,
         augment=False,
         use_cond_votes=FLAGS.use_cond_votes,
-        use_rand_votes=FLAGS.use_rand_votes,
+        use_rand_votes=FLAGS.use_rand_votes, rand_votes_factor=FLAGS.rand_votes_factor,
+        use_neg_votes=FLAGS.use_neg_votes, neg_votes_factor=FLAGS.neg_votes_factor,
         use_cond_bboxs=FLAGS.use_cond_bboxs
     )
 elif FLAGS.dataset == 'scannet':
