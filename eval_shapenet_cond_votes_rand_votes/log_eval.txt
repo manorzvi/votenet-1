@@ -1,1 +1,60 @@
-Namespace(DUMP_DIR='eval_shapenet_cond_votes_rand_votes', ap_iou_thresholds='0.25,0.5', batch_size=8, checkpoint_path='log_shapenet_cond_votes_rand_votes/checkpoint.tar', cluster_sampling='seed_fps', conf_thresh=0.05, dataset='shapenet', dump_dir='eval_shapenet_cond_votes_rand_votes', faster_eval=False, model='cond_votenet', nms_iou=0.25, no_height=True, num_point=20000, num_target=256, per_class_proposal=True, shuffle_dataset=False, use_3d_nms=True, use_cls_nms=True, use_color=False, use_cond_votes=True, use_old_type_nms=False, use_rand_votes=True, use_sunrgbd_v2=False, use_two_backbones=True, vote_factor=1)
+Namespace(DUMP_DIR='eval_shapenet_cond_votes_rand_votes', ap_iou_thresholds='0.25,0.5', batch_size=8, checkpoint_path='log_shapenet_cond_votes_rand_votes/checkpoint.tar', cluster_sampling='seed_fps', conf_thresh=0.05, dataset='shapenet', dump_dir='eval_shapenet_cond_votes_rand_votes', faster_eval=False, model='cond_votenet', nms_iou=0.25, no_height=False, num_point=20000, num_target=256, per_class_proposal=True, shuffle_dataset=False, use_3d_nms=True, use_cls_nms=True, use_color=False, use_cond_votes=True, use_old_type_nms=False, use_rand_votes=True, use_sunrgbd_v2=False, use_two_backbones=False, vote_factor=1)
+Loaded checkpoint log_shapenet_cond_votes_rand_votes/checkpoint.tar (epoch: 180)
+2021-10-13 21:20:46.841225
+eval mean box_loss: 0.041466
+eval mean center_loss: 0.013652
+eval mean heading_cls_loss: 0.000002
+eval mean heading_reg_loss: 0.000000
+eval mean loss: 24.663786
+eval mean neg_ratio: 0.156588
+eval mean obj_acc: 0.916638
+eval mean objectness_loss: 0.057576
+eval mean pos_ratio: 0.263071
+eval mean sem_cls_loss: 0.197833
+eval mean size_cls_loss: 0.197442
+eval mean size_reg_loss: 0.008070
+eval mean vote_loss: 2.376342
+eval airplane Average Precision: 0.583609
+eval car Average Precision: 0.421499
+eval chair Average Precision: 0.646872
+eval guitar Average Precision: 0.320529
+eval knife Average Precision: 0.396885
+eval lamp Average Precision: 0.430586
+eval laptop Average Precision: 0.356312
+eval motorbike Average Precision: 0.430124
+eval pistol Average Precision: 0.416402
+eval table Average Precision: 0.595244
+eval mAP: 0.459806
+eval airplane Recall: 0.874396
+eval car Recall: 0.666667
+eval chair Recall: 0.977169
+eval guitar Recall: 0.475000
+eval knife Recall: 0.565217
+eval lamp Recall: 0.841463
+eval laptop Recall: 0.937500
+eval motorbike Recall: 0.588235
+eval pistol Recall: 0.666667
+eval table Recall: 0.935103
+eval AR: 0.752742
+eval airplane Average Precision: 0.474935
+eval car Average Precision: 0.374363
+eval chair Average Precision: 0.558806
+eval guitar Average Precision: 0.106501
+eval knife Average Precision: 0.181857
+eval lamp Average Precision: 0.147580
+eval laptop Average Precision: 0.334361
+eval motorbike Average Precision: 0.352941
+eval pistol Average Precision: 0.199048
+eval table Average Precision: 0.408342
+eval mAP: 0.313873
+eval airplane Recall: 0.483092
+eval car Recall: 0.404762
+eval chair Recall: 0.739726
+eval guitar Recall: 0.225000
+eval knife Recall: 0.391304
+eval lamp Recall: 0.365854
+eval laptop Recall: 0.812500
+eval motorbike Recall: 0.352941
+eval pistol Recall: 0.400000
+eval table Recall: 0.616519
+eval AR: 0.479170
