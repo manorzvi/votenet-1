@@ -1,2 +1,2 @@
-python shapenet_scenes.py --input-path train_data_balanced --output-path scenes/train --min-n-objects 16 --max-n-objects 16 --n-scenes 10000 --step-size 2.0 --exclude bag cap earphone rocket skateboard mug
-python shapenet_scenes.py --input-path val_data_balanced   --output-path scenes/val   --min-n-objects 16 --max-n-objects 16 --n-scenes 100   --step-size 2.0 --exclude bag cap earphone rocket skateboard mug
+python shapenet_scenes.py --input-path train_data_balanced --output-path scenes/train --min-n-objects 16 --max-n-objects 16 --n-scenes 10000 --step-size 1.33 --exclude bag cap earphone rocket skateboard mug
+python shapenet_scenes.py --input-path val_data_balanced   --output-path scenes/val   --min-n-objects 16 --max-n-objects 16 --n-scenes 100   --step-size 1.33 --exclude bag cap earphone rocket skateboard mug
