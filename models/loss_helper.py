@@ -136,13 +136,13 @@ def compute_box_and_sem_cls_loss(end_points, config):
 
     # Compute center loss
     pred_center = end_points['center']
-    print(f'loss_helper:139: pred_center = {pred_center}, {pred_center.shape}')
-    gt_center = end_points['center_label'][:, 0:3]
-    print(f'loss_helper:141: gt_center = {gt_center}, {gt_center.shape}')
+    # print(f'loss_helper:139: pred_center = {pred_center}, {pred_center.shape}')
+    gt_center = torch.unsqueeze(end_points['center_label'][:, 0:3], dim=1)
+    # print(f'loss_helper:141: gt_center = {gt_center}, {gt_center.shape}')
     dist1, ind1, dist2, _ = nn_distance(pred_center, gt_center)  # dist1: BxK, dist2: BxK2
-    box_label_mask = end_points['box_label_mask']
     objectness_label = end_points['objectness_label'].float()
     centroid_reg_loss1 = torch.sum(dist1 * objectness_label) / (torch.sum(objectness_label) + 1e-6)
+    print(f'loss_helper:145 dist2={dist2}, {dist2.shape}')
     centroid_reg_loss2 = torch.sum(dist2 * box_label_mask) / (torch.sum(box_label_mask) + 1e-6)
     center_loss = centroid_reg_loss1 + centroid_reg_loss2
 
