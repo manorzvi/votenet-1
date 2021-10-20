@@ -263,6 +263,10 @@ def train_one_epoch():
 
         end_points = net(inputs)
 
+        for k,v in end_points.items():
+            print(f'{k} :')
+            print(v.shapa, v.dtype())
+
         # Compute loss and gradients, update parameters.
         for key in batch_data_label:
             assert (key not in end_points)
