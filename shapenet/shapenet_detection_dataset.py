@@ -16,12 +16,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
-sys.path.append(os.path.join(ROOT_DIR, 'sunrgbd'))
 import pc_util
-from sunrgbd_utils import my_compute_box_3d
 
 DC = ShapenetDatasetConfig()  # dataset specific config
 TRANSFORMS = ShapenetTransforms()
+
 
 class ShapenetDetectionVotesDataset(Dataset):
     def __init__(self, split_set='train', num_points=20000, cond_obj_num_points=2000,
@@ -146,8 +145,8 @@ class ShapenetDetectionVotesDataset(Dataset):
             if np.random.random() > 0.5:
                 # Flipping along the YZ plane
                 pc[:, 0] = -1 * pc[:, 0]
-                bboxes[:, 0] = -1 * bboxes[:, 0]
-                bboxes[:, 6] = np.pi - bboxes[:, 6]
+                bbox[:, 0] = -1 * bbox[:, 0]
+                bbox[:, 6] = np.pi - bbox[:, 6]
                 pc_votes[:, [1, 4, 7]] = -1 * pc_votes[:, [1, 4, 7]]
 
             # Rotation along up-axis/Z-axis
@@ -160,8 +159,8 @@ class ShapenetDetectionVotesDataset(Dataset):
             point_votes_end[:, 7:10] = np.dot(pc[:, 0:3] + pc_votes[:, 7:10], np.transpose(rot_mat))
 
             pc[:, 0:3] = np.dot(pc[:, 0:3], np.transpose(rot_mat))
-            bboxes[:, 0:3] = np.dot(bboxes[:, 0:3], np.transpose(rot_mat))
-            bboxes[:, 6] -= rot_angle
+            bbox[:, 0:3] = np.dot(bbox[:, 0:3], np.transpose(rot_mat))
+            bbox[:, 6] -= rot_angle
             pc_votes[:, 1:4] = point_votes_end[:, 1:4] - pc[:, 0:3]
             pc_votes[:, 4:7] = point_votes_end[:, 4:7] - pc[:, 0:3]
             pc_votes[:, 7:10] = point_votes_end[:, 7:10] - pc[:, 0:3]
@@ -170,8 +169,8 @@ class ShapenetDetectionVotesDataset(Dataset):
             scale_ratio = np.random.random() * 0.3 + 0.85
             scale_ratio = np.expand_dims(np.tile(scale_ratio, 3), 0)
             pc[:, 0:3] *= scale_ratio
-            bboxes[:, 0:3] *= scale_ratio
-            bboxes[:, 3:6] *= scale_ratio
+            bbox[:, 0:3] *= scale_ratio
+            bbox[:, 3:6] *= scale_ratio
             pc_votes[:, 1:4] *= scale_ratio
             pc_votes[:, 4:7] *= scale_ratio
             pc_votes[:, 7:10] *= scale_ratio

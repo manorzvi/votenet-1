@@ -42,10 +42,6 @@ parser.add_argument('--use_neg_votes', action='store_true', default=False,
                          'The rest vote to the negative direction.')
 parser.add_argument('--neg_votes_factor', type=float, default=1.0)
 
-parser.add_argument('--use_cond_bboxs', action='store_true', default=False,
-                    help='Use conditional bounding boxes.'
-                         'Only the objects associated with the condition object are not masked.')
-
 parser.add_argument('--use_rand_votes', action='store_true', default=False,
                     help='All points can vote, but only the points associated with the conditioned object vote to the center.'
                          'The rest vote to a random point.')
@@ -93,15 +89,7 @@ def log_string(out_str):
 def my_worker_init_fn(worker_id):
     np.random.seed(np.random.get_state()[1][0] + worker_id)
 
-if FLAGS.dataset == 'sunrgbd':
-    sys.path.append(os.path.join(ROOT_DIR, 'sunrgbd'))
-    from sunrgbd_detection_dataset import SunrgbdDetectionVotesDataset
-    from model_util_sunrgbd import SunrgbdDatasetConfig
-    DATASET_CONFIG = SunrgbdDatasetConfig()
-    TEST_DATASET = SunrgbdDetectionVotesDataset('val', num_points=NUM_POINT,
-        augment=False, use_color=FLAGS.use_color, use_height=(not FLAGS.no_height),
-        use_v1=(not FLAGS.use_sunrgbd_v2))
-elif FLAGS.dataset == 'shapenet':
+if FLAGS.dataset == 'shapenet':
     sys.path.append(os.path.join(ROOT_DIR, 'shapenet'))
     from shapenet_detection_dataset import ShapenetDetectionVotesDataset
     from model_util_shapenet import ShapenetDatasetConfig
@@ -113,22 +101,16 @@ elif FLAGS.dataset == 'shapenet':
         use_cond_votes=FLAGS.use_cond_votes,
         use_rand_votes=FLAGS.use_rand_votes, rand_votes_factor=FLAGS.rand_votes_factor,
         use_neg_votes=FLAGS.use_neg_votes, neg_votes_factor=FLAGS.neg_votes_factor,
-        use_cond_bboxs=FLAGS.use_cond_bboxs
     )
-elif FLAGS.dataset == 'scannet':
-    sys.path.append(os.path.join(ROOT_DIR, 'scannet'))
-    from scannet_detection_dataset import ScannetDetectionDataset, MAX_NUM_OBJ
-    from model_util_scannet import ScannetDatasetConfig
-    DATASET_CONFIG = ScannetDatasetConfig()
-    TEST_DATASET = ScannetDetectionDataset('val', num_points=NUM_POINT,
-        augment=False,
-        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height))
 else:
     print('Unknown dataset %s. Exiting...'%(FLAGS.dataset))
     exit(-1)
+
 print(f'|TEST_DATASET|={len(TEST_DATASET)}')
+
 TEST_DATALOADER = DataLoader(TEST_DATASET, batch_size=BATCH_SIZE,
     shuffle=FLAGS.shuffle_dataset, num_workers=4, worker_init_fn=my_worker_init_fn)
+
 print(f'|TEST_DATALOADER|={len(TEST_DATALOADER)}')
 
 # Init the model and optimzier
@@ -168,6 +150,7 @@ else:
     )
 
 net.to(device)
+
 criterion = MODEL.get_loss
 
 # Load the Adam optimizer
