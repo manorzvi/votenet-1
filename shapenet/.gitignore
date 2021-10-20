@@ -1,1 +1,3 @@
 scenes/
+train_data_balanced/
+val_data_balanced/
