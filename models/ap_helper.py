@@ -208,9 +208,11 @@ def parse_groundtruths(end_points, config_dict):
     gt_corners_3d_upright_camera = np.zeros((bsize, 1, 8, 3))
     gt_center_upright_camera = flip_axis_to_camera(center_label[:, 0:3].detach().cpu().numpy())
     for i in range(bsize):
-        heading_angle = config_dict['dataset_config'].class2angle(heading_class_label[i,1].detach().cpu().numpy(), heading_residual_label[i,1].detach().cpu().numpy())
-        box_size = config_dict['dataset_config'].class2size(int(size_class_label[i,1].detach().cpu().numpy()), size_residual_label[i,1].detach().cpu().numpy())
-        corners_3d_upright_camera = get_3d_box(box_size, heading_angle, gt_center_upright_camera[i,1,:])
+        heading_angle = config_dict['dataset_config'].class2angle(heading_class_label[i].detach().cpu().numpy(),
+                                                                  heading_residual_label[i].detach().cpu().numpy())
+        box_size = config_dict['dataset_config'].class2size(int(size_class_label[i].detach().cpu().numpy()),
+                                                            size_residual_label[i].detach().cpu().numpy())
+        corners_3d_upright_camera = get_3d_box(box_size, heading_angle, gt_center_upright_camera[i, 1, :])
         gt_corners_3d_upright_camera[i, 1] = corners_3d_upright_camera
 
     batch_gt_map_cls = []
