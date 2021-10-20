@@ -137,16 +137,14 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
         if np.sum(objectness_mask[i, :]) > 0:
             pc_util.write_ply(pred_center[i, objectness_mask[i, :] > 0, 0:3],
                               os.path.join(dump_dir, '%06d_gt_mask_proposal_pc.ply' % (idx_beg + i)))
-        pc_util.write_ply(gt_center[i, :, 0:3], os.path.join(dump_dir, '%06d_gt_centroid_pc.ply' % (idx_beg + i)))
+        pc_util.write_ply(gt_center[i, 0:3], os.path.join(dump_dir, '%06d_gt_centroid_pc.ply' % (idx_beg + i)))
         pc_util.write_ply_color(pred_center[i, :, 0:3], objectness_label[i, :],
                                 os.path.join(dump_dir, '%06d_proposal_pc_objectness_label.obj' % (idx_beg + i)))
 
         # Dump GT bounding boxes
         obbs = []
-        for j in range(gt_center.shape[1]):
-            obb = config.param2obb(gt_center[i, j, 0:3], gt_heading_class[i, j], gt_heading_residual[i, j],
-                                   gt_size_class[i, j], gt_size_residual[i, j])
-            obbs.append(obb)
+        obb = config.param2obb(gt_center[i, 0:3], gt_heading_class[i], gt_heading_residual[i], gt_size_class[i], gt_size_residual[i])
+        obbs.append(obb)
         if len(obbs) > 0:
             obbs = np.vstack(tuple(obbs))  # (num_gt_objects, 7)
             pc_util.write_oriented_bbox(obbs, os.path.join(dump_dir, '%06d_gt_bbox.ply' % (idx_beg + i)))
