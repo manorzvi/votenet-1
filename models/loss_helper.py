@@ -178,10 +178,10 @@ def compute_box_and_sem_cls_loss(end_points, config):
     size_label_one_hot = torch.cuda.FloatTensor(batch_size, size_class_label.shape[1], num_size_cluster).zero_()
     size_label_one_hot.scatter_(2, size_class_label.unsqueeze(-1), 1)  # src==1 so it's *one-hot* (B,K,num_size_cluster)
     size_label_one_hot_tiled = size_label_one_hot.unsqueeze(-1).repeat(1, 1, 1, 3)
-    print(f'size_label_one_hot_tiled={size_label_one_hot_tiled}, {size_label_one_hot_tiled.shape}')
-    print(f"size_residuals_normalized={end_points['size_residuals_normalized']}, {end_points['size_residuals_normalized'].shape}")
+    # print(f'size_label_one_hot_tiled={size_label_one_hot_tiled}, {size_label_one_hot_tiled.shape}')
+    # print(f"size_residuals_normalized={end_points['size_residuals_normalized']}, {end_points['size_residuals_normalized'].shape}")
     predicted_size_residual_normalized = torch.sum(end_points['size_residuals_normalized'] * size_label_one_hot_tiled, 2)
-    print(f"predicted_size_residual_normalized={predicted_size_residual_normalized}, {predicted_size_residual_normalized.shape}")
+    # print(f"predicted_size_residual_normalized={predicted_size_residual_normalized}, {predicted_size_residual_normalized.shape}")
     mean_size_arr_expanded = torch.from_numpy(mean_size_arr.astype(np.float32)).cuda().unsqueeze(0).unsqueeze(0)
     mean_size_label = torch.sum(size_label_one_hot_tiled * mean_size_arr_expanded, 2)  # (B,K,3)
     size_residual_label_normalized = size_residual_label / mean_size_label  # (B,K,3)
@@ -192,9 +192,9 @@ def compute_box_and_sem_cls_loss(end_points, config):
                 torch.sum(objectness_label) + 1e-6)
 
     # 3.4 Semantic cls loss
-    sem_cls_label = torch.gather(end_points['sem_cls_label'], 1, object_assignment)  # select (B,K) from (B,K2)
+    sem_cls_label = torch.unsqueeze(end_points['sem_cls_label'], dim=1)
     criterion_sem_cls = nn.CrossEntropyLoss(reduction='none')
-    sem_cls_loss = criterion_sem_cls(end_points['sem_cls_scores'].transpose(2, 1), sem_cls_label)  # (B,K)
+    sem_cls_loss = criterion_sem_cls(end_points['sem_cls_scores'].transpose(2, 1), sem_cls_label)
     sem_cls_loss = torch.sum(sem_cls_loss * objectness_label) / (torch.sum(objectness_label) + 1e-6)
 
     return center_loss, heading_class_loss, heading_residual_normalized_loss, size_class_loss, size_residual_normalized_loss, sem_cls_loss
