@@ -154,7 +154,7 @@ def compute_box_and_sem_cls_loss(end_points, config):
     heading_class_loss = criterion_heading_class(end_points['heading_scores'].transpose(2, 1), heading_class_label)
     heading_class_loss = torch.sum(heading_class_loss * objectness_label) / (torch.sum(objectness_label) + 1e-6)
 
-    heading_residual_label = torch.gather(end_points['heading_residual_label'], 1, object_assignment)  # select (B,K) from (B,K2)
+    heading_residual_label = torch.unsqueeze(end_points['heading_residual_label'], dim=1)
     heading_residual_normalized_label = heading_residual_label / (np.pi / num_heading_bin)
 
     # Ref: https://discuss.pytorch.org/t/convert-int-into-one-hot-format/507/3
@@ -167,13 +167,14 @@ def compute_box_and_sem_cls_loss(end_points, config):
                 torch.sum(objectness_label) + 1e-6)
 
     # Compute size loss
-    size_class_label = torch.gather(end_points['size_class_label'], 1, object_assignment)  # select (B,K) from (B,K2)
+    size_class_label = torch.unsqueeze(end_points['size_class_label'], dim=1)
     criterion_size_class = nn.CrossEntropyLoss(reduction='none')
-    size_class_loss = criterion_size_class(end_points['size_scores'].transpose(2, 1), size_class_label)  # (B,K)
+    size_class_loss = criterion_size_class(end_points['size_scores'].transpose(2, 1), size_class_label)
     size_class_loss = torch.sum(size_class_loss * objectness_label) / (torch.sum(objectness_label) + 1e-6)
 
-    size_residual_label = torch.gather(end_points['size_residual_label'], 1,
-                                       object_assignment.unsqueeze(-1).repeat(1, 1, 3))  # select (B,K,3) from (B,K2,3)
+    print(f"size_residual_label={end_points['size_residual_label']}, {end_points['size_residual_label'].shape}")
+    print(f"object_assignment.unsqueeze(-1).repeat(1, 1, 3)={object_assignment.unsqueeze(-1).repeat(1, 1, 3)}, {object_assignment.unsqueeze(-1).repeat(1, 1, 3).shape}")
+    size_residual_label = torch.gather(end_points['size_residual_label'], 1, object_assignment.unsqueeze(-1).repeat(1, 1, 3))  # select (B,K,3) from (B,K2,3)
     size_label_one_hot = torch.cuda.FloatTensor(batch_size, size_class_label.shape[1], num_size_cluster).zero_()
     size_label_one_hot.scatter_(2, size_class_label.unsqueeze(-1), 1)  # src==1 so it's *one-hot* (B,K,num_size_cluster)
     size_label_one_hot_tiled = size_label_one_hot.unsqueeze(-1).repeat(1, 1, 1, 3)  # (B,K,num_size_cluster,3)
