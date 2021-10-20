@@ -23,18 +23,6 @@ class ShapenetDatasetConfig(object):
         self.num_heading_bin = 12
         self.num_size_cluster = 10
 
-        # self.type2class = {
-        #     'airplane': shapenet_config.classname2class['airplane'],
-        #     'car': shapenet_config.classname2class['car'],
-        #     'chair': shapenet_config.classname2class['chair'],
-        #     'guitar': shapenet_config.classname2class['guitar'],
-        #     'knife': shapenet_config.classname2class['knife'],
-        #     'lamp': shapenet_config.classname2class['lamp'],
-        #     'laptop': shapenet_config.classname2class['laptop'],
-        #     'motorbike': shapenet_config.classname2class['motorbike'],
-        #     'pistol': shapenet_config.classname2class['pistol'],
-        #     'table': shapenet_config.classname2class['table']
-        # }
         self.type2class = {
             'airplane': 0,
             'car': 1,
