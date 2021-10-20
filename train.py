@@ -33,8 +33,6 @@ parser.add_argument('--checkpoint_path', default=None, help='Model checkpoint pa
 parser.add_argument('--log_dir', default='log', help='Dump dir to save model checkpoint [default: log]')
 parser.add_argument('--dump_dir', default=None, help='Dump dir to save sample outputs [default: None]')
 parser.add_argument('--num_point', type=int, default=20000, help='Point Number [default: 20000]')
-parser.add_argument('--num_target', type=int, default=256, help='Proposal number [default: 256]')
-parser.add_argument('--vote_factor', type=int, default=1, help='Vote factor [default: 1]')
 parser.add_argument('--cluster_sampling', default='vote_fps',
                     help='Sampling strategy for vote clusters: vote_fps, seed_fps, random [default: vote_fps]')
 parser.add_argument('--ap_iou_thresh', type=float, default=0.25, help='AP IoU threshold [default: 0.25]')
@@ -47,8 +45,6 @@ parser.add_argument('--bn_decay_rate', type=float, default=0.5, help='Decay rate
 parser.add_argument('--lr_decay_steps', default='80,120,160',
                     help='When to decay the learning rate (in epochs) [default: 80,120,160]')
 parser.add_argument('--lr_decay_rates', default='0.1,0.1,0.1', help='Decay rates for lr decay [default: 0.1,0.1,0.1]')
-parser.add_argument('--no_height', action='store_true', help='Do NOT use height signal in input.')
-parser.add_argument('--use_color', action='store_true', help='Use RGB color in input.')
 
 parser.add_argument('--use_cond_votes', action='store_true', default=False,
                     help='Use conditional votes label (only points associated with the conditioned object vote)')
@@ -66,7 +62,6 @@ parser.add_argument('--rand_votes_factor', type=float, default=1.0)
 parser.add_argument('--use_two_backbones', action='store_true', default=False,
                     help='Use another pointnet++ backbone net for the conditional point cloud.')
 
-parser.add_argument('--use_sunrgbd_v2', action='store_true', help='Use V2 box labels for SUN RGB-D dataset')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite existing log and dump folders.')
 parser.add_argument('--dump_results', action='store_true', help='Dump results.')
 FLAGS = parser.parse_args()
@@ -89,8 +84,7 @@ LOG_DIR = FLAGS.log_dir
 DEFAULT_DUMP_DIR = os.path.join(BASE_DIR, os.path.basename(LOG_DIR))
 DUMP_DIR = FLAGS.dump_dir if FLAGS.dump_dir is not None else DEFAULT_DUMP_DIR
 DEFAULT_CHECKPOINT_PATH = os.path.join(LOG_DIR, 'checkpoint.tar')
-CHECKPOINT_PATH = FLAGS.checkpoint_path if FLAGS.checkpoint_path is not None \
-    else DEFAULT_CHECKPOINT_PATH
+CHECKPOINT_PATH = FLAGS.checkpoint_path if FLAGS.checkpoint_path is not None else DEFAULT_CHECKPOINT_PATH
 FLAGS.DUMP_DIR = DUMP_DIR
 
 # Prepare LOG_DIR and DUMP_DIR
@@ -117,7 +111,8 @@ def log_string(out_str):
     print(out_str)
 
 
-if not os.path.exists(DUMP_DIR): os.mkdir(DUMP_DIR)
+if not os.path.exists(DUMP_DIR):
+    os.mkdir(DUMP_DIR)
 
 
 # Init datasets and dataloaders 
@@ -147,7 +142,7 @@ if FLAGS.dataset == 'shapenet':
         use_neg_votes=FLAGS.use_neg_votes, neg_votes_factor=FLAGS.neg_votes_factor,
     )
 else:
-    print('Unknown dataset %s. Exiting...' % (FLAGS.dataset))
+    print(f'Unknown dataset {FLAGS.dataset}. Exiting...')
     exit(-1)
 
 print(f' |TRAIN_DATASET|={len(TRAIN_DATASET)}', f'|TEST_DATASET|={len(TEST_DATASET)}')
@@ -162,14 +157,12 @@ print(f' |TRAIN_DATALOADER|={len(TRAIN_DATALOADER)}', f'|TEST_DATALOADER|={len(T
 # Init the model and optimzier
 MODEL = importlib.import_module(FLAGS.model)  # import network module
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-num_input_channel = int(FLAGS.use_color) * 3 + int(not FLAGS.no_height) * 1
 
-if FLAGS.model == 'boxnet':
-    Detector = MODEL.BoxNet
-elif FLAGS.model == 'cond_votenet':
+if FLAGS.model == 'cond_votenet':
     Detector = MODEL.CondVoteNet
 else:
-    Detector = MODEL.VoteNet
+    print(f'Unknown model {FLAGS.model}. Exiting...')
+    exit(-1)
 
 if FLAGS.model == 'cond_votenet':
     net = Detector(
@@ -177,23 +170,12 @@ if FLAGS.model == 'cond_votenet':
         num_heading_bin=DATASET_CONFIG.num_heading_bin,
         num_size_cluster=DATASET_CONFIG.num_size_cluster,
         mean_size_arr=DATASET_CONFIG.mean_size_arr,
-        num_proposal=FLAGS.num_target,
-        input_feature_dim=0,
-        vote_factor=FLAGS.vote_factor,
         sampling=FLAGS.cluster_sampling,
         use_two_backbones=FLAGS.use_two_backbones,
     )
 else:
-    net = Detector(
-        num_class=DATASET_CONFIG.num_class,
-        num_heading_bin=DATASET_CONFIG.num_heading_bin,
-        num_size_cluster=DATASET_CONFIG.num_size_cluster,
-        mean_size_arr=DATASET_CONFIG.mean_size_arr,
-        num_proposal=FLAGS.num_target,
-        input_feature_dim=num_input_channel,
-        vote_factor=FLAGS.vote_factor,
-        sampling=FLAGS.cluster_sampling
-    )
+    print(f'Unknown model {FLAGS.model}. Exiting...')
+    exit(-1)
 
 if torch.cuda.device_count() > 1:
     log_string("Let's use %d GPUs!" % (torch.cuda.device_count()))
