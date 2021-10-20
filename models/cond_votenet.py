@@ -26,10 +26,19 @@ class CondVoteNet(nn.Module):
             Number of semantics classes to predict over -- size of softmax classifier
         num_heading_bin: int
         num_size_cluster: int
+        input_feature_dim: (default: 0)
+            Input dim in the feature descriptor for each point.  If the point cloud is Nx9, this
+            value should be 6 as in an Nx9 point cloud, 3 of the channels are xyz, and 6 are feature descriptors
+        num_proposal: int (default: 128)
+            Number of proposals/detections generated from the network. Each proposal is a 3D OBB with a semantic class.
+        vote_factor: (default: 1)
+            Number of votes generated from each seed point.
     """
 
-    def __init__(self, num_class, num_heading_bin, num_size_cluster, mean_size_arr,
-                 sampling='vote_fps', use_two_backbones: bool = False):
+    def __init__(self,
+                 num_class, num_heading_bin, num_size_cluster, mean_size_arr,
+                 input_feature_dim=0, num_proposal=128, vote_factor=1, sampling='vote_fps',
+                 use_two_backbones: bool = False):
         super().__init__()
         print('[I] - use cond_votenet!')
         self.num_class = num_class
@@ -37,21 +46,26 @@ class CondVoteNet(nn.Module):
         self.num_size_cluster = num_size_cluster
         self.mean_size_arr = mean_size_arr
         assert(mean_size_arr.shape[0] == self.num_size_cluster)
+        self.input_feature_dim = input_feature_dim
+        self.num_proposal = num_proposal
+        self.vote_factor = vote_factor
         self.sampling=sampling
 
         # Backbone point feature learning
-        self.backbone_net = Pointnet2Backbone(0)
+        self.backbone_net = Pointnet2Backbone(input_feature_dim=self.input_feature_dim)
 
         self.use_two_backbones = use_two_backbones
         if use_two_backbones:
             print('[I] - build another backbone!')
-            self.cond_backbone_net = Pointnet2Backbone(0)
+            self.cond_backbone_net = Pointnet2Backbone(input_feature_dim=self.input_feature_dim)
 
         # Hough voting
-        self.vgen = CondVotingModule(512)
+        #self.vgen = VotingModule(self.vote_factor, 256)
+        self.vgen = CondVotingModule(self.vote_factor, 512)
 
         # Vote aggregation and detection
-        self.pnet = ProposalModule(num_class, num_heading_bin, num_size_cluster, mean_size_arr, 1, sampling)
+        self.pnet = ProposalModule(num_class, num_heading_bin, num_size_cluster,
+            mean_size_arr, num_proposal, sampling)
 
     def forward(self, inputs):
         """ Forward pass of the network
@@ -78,7 +92,7 @@ class CondVoteNet(nn.Module):
             cond_end_points = self.backbone_net(inputs['cond_point_clouds'], cond_end_points)
 
         #end_points['fp2_features'] = end_points['fp2_features'] + cond_end_points['fp2_features']
-        end_points['fp2_features'] = torch.cat((end_points['fp2_features'], cond_end_points['fp2_features']), dim=1)
+        end_points['fp2_features'] = torch.cat((end_points['fp2_features'], cond_end_points['fp2_features']), axis=1)
 
         # --------- HOUGH VOTING ---------
         xyz = end_points['fp2_xyz']
