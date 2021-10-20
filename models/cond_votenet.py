@@ -48,7 +48,7 @@ class CondVoteNet(nn.Module):
             self.cond_backbone_net = Pointnet2Backbone(0)
 
         # Hough voting
-        self.vgen = CondVotingModule(1, 512)
+        self.vgen = CondVotingModule(512)
 
         # Vote aggregation and detection
         self.pnet = ProposalModule(num_class, num_heading_bin, num_size_cluster, mean_size_arr, 1, sampling)
