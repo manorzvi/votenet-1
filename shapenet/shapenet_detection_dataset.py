@@ -33,7 +33,7 @@ class ShapenetDetectionVotesDataset(Dataset):
         assert not (use_neg_votes and not use_cond_votes), "use_neg_votes allowed with use_cond_votes only"
         assert not (use_neg_votes and use_rand_votes), "use_rand_votes and use_neg_votes are mutually-exclusive"
 
-        self.data_path = os.path.join(BASE_DIR, 'scenes', split_set)
+        self.data_path = os.path.join(BASE_DIR, 'scenes-small', split_set)
         assert os.path.exists(self.data_path), f'{self.data_path} does not exist!'
 
         self.scan_names = sorted(list(set([os.path.basename(x) for x in os.listdir(self.data_path)])))

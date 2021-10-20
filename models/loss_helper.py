@@ -136,21 +136,16 @@ def compute_box_and_sem_cls_loss(end_points, config):
 
     # Compute center loss
     pred_center = end_points['center']
-    # print(f'loss_helper:139: pred_center = {pred_center}, {pred_center.shape}')
     gt_center = torch.unsqueeze(end_points['center_label'][:, 0:3], dim=1)
-    # print(f'loss_helper:141: gt_center = {gt_center}, {gt_center.shape}')
     dist1, ind1, dist2, _ = nn_distance(pred_center, gt_center)  # dist1: BxK, dist2: BxK2
     objectness_label = end_points['objectness_label'].float()
     centroid_reg_loss1 = torch.sum(dist1 * objectness_label) / (torch.sum(objectness_label) + 1e-6)
-    # print(f'loss_helper:145 dist2={dist2}, {dist2.shape}')
     centroid_reg_loss2 = torch.sum(dist2)
     center_loss = centroid_reg_loss1 + centroid_reg_loss2
 
     # Compute heading loss
     heading_class_label = torch.unsqueeze(end_points['heading_class_label'], dim=1)
     criterion_heading_class = nn.CrossEntropyLoss(reduction='none')
-    print(f"heading_class_label={heading_class_label}, {heading_class_label.shape}")
-    print(f"heading_scores={end_points['heading_scores'].transpose(2, 1)}, {end_points['heading_scores'].transpose(2, 1).shape}")
     heading_class_loss = criterion_heading_class(end_points['heading_scores'].transpose(2, 1), heading_class_label)
     heading_class_loss = torch.sum(heading_class_loss * objectness_label) / (torch.sum(objectness_label) + 1e-6)
 
@@ -172,16 +167,11 @@ def compute_box_and_sem_cls_loss(end_points, config):
     size_class_loss = criterion_size_class(end_points['size_scores'].transpose(2, 1), size_class_label)
     size_class_loss = torch.sum(size_class_loss * objectness_label) / (torch.sum(objectness_label) + 1e-6)
 
-    # print(f"size_residual_label={end_points['size_residual_label']}, {end_points['size_residual_label'].shape}")
-    # print(f"object_assignment.unsqueeze(-1).repeat(1, 1, 3)={object_assignment.unsqueeze(-1).repeat(1, 1, 3)}, {object_assignment.unsqueeze(-1).repeat(1, 1, 3).shape}")
     size_residual_label = end_points['size_residual_label']
     size_label_one_hot = torch.cuda.FloatTensor(batch_size, size_class_label.shape[1], num_size_cluster).zero_()
     size_label_one_hot.scatter_(2, size_class_label.unsqueeze(-1), 1)  # src==1 so it's *one-hot* (B,K,num_size_cluster)
     size_label_one_hot_tiled = size_label_one_hot.unsqueeze(-1).repeat(1, 1, 1, 3)
-    # print(f'size_label_one_hot_tiled={size_label_one_hot_tiled}, {size_label_one_hot_tiled.shape}')
-    # print(f"size_residuals_normalized={end_points['size_residuals_normalized']}, {end_points['size_residuals_normalized'].shape}")
     predicted_size_residual_normalized = torch.sum(end_points['size_residuals_normalized'] * size_label_one_hot_tiled, 2)
-    # print(f"predicted_size_residual_normalized={predicted_size_residual_normalized}, {predicted_size_residual_normalized.shape}")
     mean_size_arr_expanded = torch.from_numpy(mean_size_arr.astype(np.float32)).cuda().unsqueeze(0).unsqueeze(0)
     mean_size_label = torch.sum(size_label_one_hot_tiled * mean_size_arr_expanded, 2)  # (B,K,3)
     size_residual_label_normalized = size_residual_label / mean_size_label  # (B,K,3)

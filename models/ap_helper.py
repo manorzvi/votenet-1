@@ -212,12 +212,14 @@ def parse_groundtruths(end_points, config_dict):
                                                                   heading_residual_label[i].detach().cpu().numpy())
         box_size = config_dict['dataset_config'].class2size(int(size_class_label[i].detach().cpu().numpy()),
                                                             size_residual_label[i].detach().cpu().numpy())
-        corners_3d_upright_camera = get_3d_box(box_size, heading_angle, gt_center_upright_camera[i, 1, :])
-        gt_corners_3d_upright_camera[i, 1] = corners_3d_upright_camera
+        print(gt_center_upright_camera.shape)
+        corners_3d_upright_camera = get_3d_box(box_size, heading_angle, gt_center_upright_camera[i, :])
+        print(gt_corners_3d_upright_camera.shape)
+        gt_corners_3d_upright_camera[i] = corners_3d_upright_camera
 
     batch_gt_map_cls = []
     for i in range(bsize):
-        batch_gt_map_cls.append([(sem_cls_label[i, 1].item(), gt_corners_3d_upright_camera[i, 1])])
+        batch_gt_map_cls.append([(sem_cls_label[i].item(), gt_corners_3d_upright_camera[i])])
     end_points['batch_gt_map_cls'] = batch_gt_map_cls
 
     return batch_gt_map_cls
