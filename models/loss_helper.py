@@ -149,7 +149,7 @@ def compute_box_and_sem_cls_loss(end_points, config):
     # Compute heading loss
     heading_class_label = torch.unsqueeze(end_points['heading_class_label'], dim=1)
     criterion_heading_class = nn.CrossEntropyLoss(reduction='none')
-    print(f"heading_class_label={end_points['heading_class_label']}, {end_points['heading_class_label'].shape}")
+    print(f"heading_class_label={heading_class_label}, {heading_class_label.shape}")
     print(f"heading_scores={end_points['heading_scores'].transpose(2, 1)}, {end_points['heading_scores'].transpose(2, 1).shape}")
     heading_class_loss = criterion_heading_class(end_points['heading_scores'].transpose(2, 1), heading_class_label)
     heading_class_loss = torch.sum(heading_class_loss * objectness_label) / (torch.sum(objectness_label) + 1e-6)
