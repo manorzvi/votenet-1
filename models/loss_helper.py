@@ -142,26 +142,22 @@ def compute_box_and_sem_cls_loss(end_points, config):
     dist1, ind1, dist2, _ = nn_distance(pred_center, gt_center)  # dist1: BxK, dist2: BxK2
     objectness_label = end_points['objectness_label'].float()
     centroid_reg_loss1 = torch.sum(dist1 * objectness_label) / (torch.sum(objectness_label) + 1e-6)
-    print(f'loss_helper:145 dist2={dist2}, {dist2.shape}')
-    centroid_reg_loss2 = torch.sum(dist2 * box_label_mask) / (torch.sum(box_label_mask) + 1e-6)
+    # print(f'loss_helper:145 dist2={dist2}, {dist2.shape}')
+    centroid_reg_loss2 = torch.sum(dist2)
     center_loss = centroid_reg_loss1 + centroid_reg_loss2
 
     # Compute heading loss
-    heading_class_label = torch.gather(end_points['heading_class_label'], 1,
-                                       object_assignment)  # select (B,K) from (B,K2)
+    heading_class_label = torch.gather(end_points['heading_class_label'], 1, object_assignment)  # select (B,K) from (B,K2)
     criterion_heading_class = nn.CrossEntropyLoss(reduction='none')
-    heading_class_loss = criterion_heading_class(end_points['heading_scores'].transpose(2, 1),
-                                                 heading_class_label)  # (B,K)
+    heading_class_loss = criterion_heading_class(end_points['heading_scores'].transpose(2, 1), heading_class_label)  # (B,K)
     heading_class_loss = torch.sum(heading_class_loss * objectness_label) / (torch.sum(objectness_label) + 1e-6)
 
-    heading_residual_label = torch.gather(end_points['heading_residual_label'], 1,
-                                          object_assignment)  # select (B,K) from (B,K2)
+    heading_residual_label = torch.gather(end_points['heading_residual_label'], 1, object_assignment)  # select (B,K) from (B,K2)
     heading_residual_normalized_label = heading_residual_label / (np.pi / num_heading_bin)
 
     # Ref: https://discuss.pytorch.org/t/convert-int-into-one-hot-format/507/3
     heading_label_one_hot = torch.cuda.FloatTensor(batch_size, heading_class_label.shape[1], num_heading_bin).zero_()
-    heading_label_one_hot.scatter_(2, heading_class_label.unsqueeze(-1),
-                                   1)  # src==1 so it's *one-hot* (B,K,num_heading_bin)
+    heading_label_one_hot.scatter_(2, heading_class_label.unsqueeze(-1), 1)  # src==1 so it's *one-hot* (B,K,num_heading_bin)
     heading_residual_normalized_loss = huber_loss(
         torch.sum(end_points['heading_residuals_normalized'] * heading_label_one_hot,
                   -1) - heading_residual_normalized_label, delta=1.0)  # (B,K)
