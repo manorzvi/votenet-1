@@ -1,0 +1,96 @@
+<!DOCTYPE MeshLabDocument>
+<MeshLabProject>
+ <MeshGroup>
+  <MLMesh filename="000000_cond_pc.ply" label="000000_cond_pc.ply" visible="0">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="255 255 255 255" pointSize="3" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">000110000000000000000100000001000000001010100000000100111011110000111101</RenderingOption>
+  </MLMesh>
+  <MLMesh filename="000000_pc.ply" label="000000_pc.ply" visible="0">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="0 0 0 255" pointSize="3" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">000110000000000000000100000001000000001010100000000100111011110000111101</RenderingOption>
+  </MLMesh>
+  <MLMesh filename="000000_vgen_pc.ply" label="000000_vgen_pc.ply" visible="0">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="252 233 79 255" pointSize="3" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">000110000000000000000100000001000000001010100000000100111011110000111101</RenderingOption>
+  </MLMesh>
+  <MLMesh filename="000000_pred_confident_nms_bbox.ply" label="000000_pred_confident_nms_bbox.ply" visible="0">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="131 149 69 255" pointSize="3" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">100001000000000000000100000001010100000010100000000100111011110000001001</RenderingOption>
+  </MLMesh>
+  <MLMesh filename="000000_aggregated_vote_pc.ply" label="000000_aggregated_vote_pc.ply" visible="0">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="239 41 41 255" pointSize="4" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">000110000000000000000000000000000000000010100000000100111011110000101101</RenderingOption>
+  </MLMesh>
+  <MLMesh filename="000001_cond_pc.ply" label="000001_cond_pc.ply" visible="1">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="255 255 255 255" pointSize="3" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">000110000000000000000000000000000000000010100000000100111011110000101101</RenderingOption>
+  </MLMesh>
+  <MLMesh filename="000001_pc.ply" label="000001_pc.ply" visible="1">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="0 0 0 255" pointSize="3" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">000110000000000000000000000000000000000010100000000100111011110000101101</RenderingOption>
+  </MLMesh>
+  <MLMesh filename="000001_pred_confident_nms_bbox.ply" label="000001_pred_confident_nms_bbox.ply" visible="0">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="131 149 69 255" pointSize="3" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">100001000000000000000000000001010100000010100000000100111011110000001001</RenderingOption>
+  </MLMesh>
+  <MLMesh filename="000001_vgen_pc.ply" label="000001_vgen_pc.ply" visible="1">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="252 233 79 255" pointSize="3" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">000110000000000000000000000000000000000010100000000100111011110000101101</RenderingOption>
+  </MLMesh>
+  <MLMesh filename="000001_aggregated_vote_pc.ply" label="000001_aggregated_vote_pc.ply" visible="1">
+   <MLMatrix44>
+1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+</MLMatrix44>
+   <RenderingOption pointColor="239 41 41 255" pointSize="4" boxColor="234 234 234 255" solidColor="192 192 192 255" wireColor="64 64 64 255" wireWidth="1">000110000000000000000000000000000000000010100000000100111011110000101101</RenderingOption>
+  </MLMesh>
+ </MeshGroup>
+ <RasterGroup/>
+</MeshLabProject>
