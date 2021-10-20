@@ -26,13 +26,9 @@ parser.add_argument('--dataset', default='sunrgbd', help='Dataset name. sunrgbd 
 parser.add_argument('--checkpoint_path', default=None, help='Model checkpoint path [default: None]')
 parser.add_argument('--dump_dir', default=None, help='Dump dir to save sample outputs [default: None]')
 parser.add_argument('--num_point', type=int, default=20000, help='Point Number [default: 20000]')
-parser.add_argument('--num_target', type=int, default=256, help='Point Number [default: 256]')
 parser.add_argument('--batch_size', type=int, default=8, help='Batch Size during training [default: 8]')
-parser.add_argument('--vote_factor', type=int, default=1, help='Number of votes generated from each seed [default: 1]')
 parser.add_argument('--cluster_sampling', default='vote_fps', help='Sampling strategy for vote clusters: vote_fps, seed_fps, random [default: vote_fps]')
 parser.add_argument('--ap_iou_thresholds', default='0.25,0.5', help='A list of AP IoU thresholds [default: 0.25,0.5]')
-parser.add_argument('--no_height', action='store_true', help='Do NOT use height signal in input.')
-parser.add_argument('--use_color', action='store_true', help='Use RGB color in input.')
 
 parser.add_argument('--use_cond_votes', action='store_true', default=False,
                     help='Use conditional votes label (only points associated with the conditioned object vote)')
@@ -50,7 +46,6 @@ parser.add_argument('--rand_votes_factor', type=float, default=1.0)
 parser.add_argument('--use_two_backbones', action='store_true', default=False,
                     help='Use another pointnet++ backbone net for the conditional point cloud.')
 
-parser.add_argument('--use_sunrgbd_v2', action='store_true', help='Use SUN RGB-D V2 box labels.')
 parser.add_argument('--use_3d_nms', action='store_true', help='Use 3D NMS instead of 2D NMS.')
 parser.add_argument('--use_cls_nms', action='store_true', help='Use per class NMS.')
 parser.add_argument('--use_old_type_nms', action='store_true', help='Use old type of NMS, IoBox2Area.')
@@ -62,7 +57,7 @@ parser.add_argument('--shuffle_dataset', action='store_true', help='Shuffle the 
 FLAGS = parser.parse_args()
 
 if FLAGS.use_cls_nms:
-    assert(FLAGS.use_3d_nms)
+    assert FLAGS.use_3d_nms
 
 assert not (FLAGS.use_rand_votes and not FLAGS.use_cond_votes), "If use_rand_votes=True, use_cond_votes=True is a must!"
 assert not (FLAGS.model == 'cond_votenet' and FLAGS.dataset != 'shapenet'), "If model=cond_votenet, dataset=shapenet is a must!"
@@ -80,14 +75,17 @@ AP_IOU_THRESHOLDS = [float(x) for x in FLAGS.ap_iou_thresholds.split(',')]
 if not os.path.exists(DUMP_DIR): os.mkdir(DUMP_DIR)
 DUMP_FOUT = open(os.path.join(DUMP_DIR, 'log_eval.txt'), 'w')
 DUMP_FOUT.write(str(FLAGS)+'\n')
+
+
 def log_string(out_str):
     DUMP_FOUT.write(out_str+'\n')
     DUMP_FOUT.flush()
     print(out_str)
 
-# Init datasets and dataloaders 
+
 def my_worker_init_fn(worker_id):
     np.random.seed(np.random.get_state()[1][0] + worker_id)
+
 
 if FLAGS.dataset == 'shapenet':
     sys.path.append(os.path.join(ROOT_DIR, 'shapenet'))
@@ -103,7 +101,7 @@ if FLAGS.dataset == 'shapenet':
         use_neg_votes=FLAGS.use_neg_votes, neg_votes_factor=FLAGS.neg_votes_factor,
     )
 else:
-    print('Unknown dataset %s. Exiting...'%(FLAGS.dataset))
+    print(f'Unknown dataset {FLAGS.dataset}. Exiting...')
     exit(-1)
 
 print(f'|TEST_DATASET|={len(TEST_DATASET)}')
@@ -116,14 +114,12 @@ print(f'|TEST_DATALOADER|={len(TEST_DATALOADER)}')
 # Init the model and optimzier
 MODEL = importlib.import_module(FLAGS.model) # import network module
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-num_input_channel = int(FLAGS.use_color)*3 + int(not FLAGS.no_height)*1
 
-if FLAGS.model == 'boxnet':
-    Detector = MODEL.BoxNet
-elif FLAGS.model == 'cond_votenet':
+if FLAGS.model == 'cond_votenet':
     Detector = MODEL.CondVoteNet
 else:
-    Detector = MODEL.VoteNet
+    print(f'Unknown model {FLAGS.model}. Exiting...')
+    exit(-1)
 
 if FLAGS.model == 'cond_votenet':
     net = Detector(
@@ -131,23 +127,12 @@ if FLAGS.model == 'cond_votenet':
         num_heading_bin=DATASET_CONFIG.num_heading_bin,
         num_size_cluster=DATASET_CONFIG.num_size_cluster,
         mean_size_arr=DATASET_CONFIG.mean_size_arr,
-        num_proposal=FLAGS.num_target,
-        input_feature_dim=0,
-        vote_factor=FLAGS.vote_factor,
         sampling=FLAGS.cluster_sampling,
         use_two_backbones=FLAGS.use_two_backbones,
     )
 else:
-    net = Detector(
-        num_class=DATASET_CONFIG.num_class,
-        num_heading_bin=DATASET_CONFIG.num_heading_bin,
-        num_size_cluster=DATASET_CONFIG.num_size_cluster,
-        mean_size_arr=DATASET_CONFIG.mean_size_arr,
-        num_proposal=FLAGS.num_target,
-        input_feature_dim=num_input_channel,
-        vote_factor=FLAGS.vote_factor,
-        sampling=FLAGS.cluster_sampling
-    )
+    print(f'Unknown model {FLAGS.model}. Exiting...')
+    exit(-1)
 
 net.to(device)
 
@@ -244,6 +229,7 @@ def eval():
     # REF: https://github.com/pytorch/pytorch/issues/5059
     np.random.seed()
     loss = evaluate_one_epoch()
+
 
 if __name__=='__main__':
     eval()
