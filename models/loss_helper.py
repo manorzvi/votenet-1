@@ -147,12 +147,11 @@ def compute_box_and_sem_cls_loss(end_points, config):
     center_loss = centroid_reg_loss1 + centroid_reg_loss2
 
     # Compute heading loss
-    # print(f"loss_helper:150 heading_class_label={end_points['heading_class_label']}, {end_points['heading_class_label'].shape}")
-    # print(f"object_assignment={object_assignment}, {object_assignment.shape}")
-    heading_class_label = end_points['heading_class_label']
+    heading_class_label = torch.unsqueeze(end_points['heading_class_label'], dim=1)
     criterion_heading_class = nn.CrossEntropyLoss(reduction='none')
+    print(f"heading_class_label={end_points['heading_class_label']}, {end_points['heading_class_label'].shape}")
     print(f"heading_scores={end_points['heading_scores'].transpose(2, 1)}, {end_points['heading_scores'].transpose(2, 1).shape}")
-    heading_class_loss = criterion_heading_class(end_points['heading_scores'].transpose(2, 1), heading_class_label)  # (B,K)
+    heading_class_loss = criterion_heading_class(end_points['heading_scores'].transpose(2, 1), heading_class_label)
     heading_class_loss = torch.sum(heading_class_loss * objectness_label) / (torch.sum(objectness_label) + 1e-6)
 
     heading_residual_label = torch.gather(end_points['heading_residual_label'], 1, object_assignment)  # select (B,K) from (B,K2)
