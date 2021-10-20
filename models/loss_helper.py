@@ -65,6 +65,7 @@ def compute_vote_loss(end_points):
     vote_loss = torch.sum(votes_dist*seed_gt_votes_mask.float())/(torch.sum(seed_gt_votes_mask.float())+1e-6)
     return vote_loss
 
+
 def compute_objectness_loss(end_points):
     """ Compute objectness loss for the proposals.
 
@@ -80,32 +81,31 @@ def compute_objectness_loss(end_points):
     """ 
     # Associate proposal and GT objects by point-to-point distances
     aggregated_vote_xyz = end_points['aggregated_vote_xyz']
-    gt_center = end_points['center_label'][:,:,0:3]
+    gt_center = torch.unsqueeze(end_points['center_label'][:, 0:3], dim=1)
     B = gt_center.shape[0]
-    K = aggregated_vote_xyz.shape[1]
-    K2 = gt_center.shape[1]
-    dist1, ind1, dist2, _ = nn_distance(aggregated_vote_xyz, gt_center) # dist1: BxK, dist2: BxK2
+    dist1, ind1, dist2, _ = nn_distance(aggregated_vote_xyz, gt_center)  # dist1: BxK, dist2: BxK2
 
     # Generate objectness label and mask
     # objectness_label: 1 if pred object center is within NEAR_THRESHOLD of any GT object
     # objectness_mask: 0 if pred object center is in gray zone (DONOTCARE), 1 otherwise
     euclidean_dist1 = torch.sqrt(dist1+1e-6)
-    objectness_label = torch.zeros((B,K), dtype=torch.long).cuda()
-    objectness_mask = torch.zeros((B,K)).cuda()
-    objectness_label[euclidean_dist1<NEAR_THRESHOLD] = 1
-    objectness_mask[euclidean_dist1<NEAR_THRESHOLD] = 1
-    objectness_mask[euclidean_dist1>FAR_THRESHOLD] = 1
+    objectness_label = torch.zeros((B, 1), dtype=torch.long).cuda()
+    objectness_mask = torch.zeros((B, 1)).cuda()
+    objectness_label[euclidean_dist1 < NEAR_THRESHOLD] = 1
+    objectness_mask[euclidean_dist1 < NEAR_THRESHOLD] = 1
+    objectness_mask[euclidean_dist1 > FAR_THRESHOLD] = 1
 
     # Compute objectness loss
     objectness_scores = end_points['objectness_scores']
     criterion = nn.CrossEntropyLoss(torch.Tensor(OBJECTNESS_CLS_WEIGHTS).cuda(), reduction='none')
-    objectness_loss = criterion(objectness_scores.transpose(2,1), objectness_label)
+    objectness_loss = criterion(objectness_scores.transpose(2, 1), objectness_label)
     objectness_loss = torch.sum(objectness_loss * objectness_mask)/(torch.sum(objectness_mask)+1e-6)
 
     # Set assignment
-    object_assignment = ind1 # (B,K) with values in 0,1,...,K2-1
+    object_assignment = ind1  # (B,K) with values in 0,1,...,K2-1
 
     return objectness_loss, objectness_label, objectness_mask, object_assignment
+
 
 def compute_box_and_sem_cls_loss(end_points, config):
     """ Compute 3D bounding box and semantic classification loss.
@@ -183,6 +183,7 @@ def compute_box_and_sem_cls_loss(end_points, config):
 
     return center_loss, heading_class_loss, heading_residual_normalized_loss, size_class_loss, size_residual_normalized_loss, sem_cls_loss
 
+
 def get_loss(end_points, config):
     """ Loss functions
 
@@ -212,8 +213,7 @@ def get_loss(end_points, config):
     end_points['vote_loss'] = vote_loss
 
     # Obj loss
-    objectness_loss, objectness_label, objectness_mask, object_assignment = \
-        compute_objectness_loss(end_points)
+    objectness_loss, objectness_label, objectness_mask, object_assignment = compute_objectness_loss(end_points)
     end_points['objectness_loss'] = objectness_loss
     end_points['objectness_label'] = objectness_label
     end_points['objectness_mask'] = objectness_mask
