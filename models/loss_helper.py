@@ -147,6 +147,8 @@ def compute_box_and_sem_cls_loss(end_points, config):
     center_loss = centroid_reg_loss1 + centroid_reg_loss2
 
     # Compute heading loss
+    print(f"loss_helper:150 heading_class_label={end_points['heading_class_label']}, {end_points['heading_class_label'].shape}")
+    print(f"object_assignment={object_assignment}, {object_assignment.shape}")
     heading_class_label = torch.gather(end_points['heading_class_label'], 1, object_assignment)  # select (B,K) from (B,K2)
     criterion_heading_class = nn.CrossEntropyLoss(reduction='none')
     heading_class_loss = criterion_heading_class(end_points['heading_scores'].transpose(2, 1), heading_class_label)  # (B,K)
