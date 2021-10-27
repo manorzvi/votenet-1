@@ -95,6 +95,7 @@ if __name__ == '__main__':
             pc = obj_pc.copy()
             bbox = obj_bbox.copy()
             overlapping_bboxes = True
+            counter = 0
             while overlapping_bboxes:
                 pc = transforms.to_translate(pc, t_vec, opts.step_size)
                 pc_center = np.mean(pc, axis=0)
@@ -103,6 +104,12 @@ if __name__ == '__main__':
                 bbox[2] = pc_center[2]
 
                 overlapping_bboxes = check_intersection(pc, bboxes=scene_data['scene_bbox'])
+
+                counter += 1
+
+                if counter > 24:
+                    logger.warning('Early-stopping add bboxes to scene loop')
+                    overlapping_bboxes = False
 
             # if opts.debug:
             #     logger.debug('Plot object after translation')
