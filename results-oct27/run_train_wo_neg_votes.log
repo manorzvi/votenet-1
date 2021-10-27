@@ -1,0 +1,603 @@
+CUDA_VISIBLE_DEVICES=0 python train.py --dataset shapenet --model cond_votenet --log_dir results-oct27/log_shapenet_num_target4_cond_votes --dump_results --dump_dir results-oct27/dump_shapenet_num_target4_cond_votes --use_cond_votes --max_epoch 120 --num_target 4
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:516: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:517: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:518: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:519: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:520: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:525: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:541: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:542: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:543: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:544: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:545: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/home/manorz/miniconda3/envs/VotenetEnv2/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:550: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+WARNING:tensorflow:From /home/manorz/votenet-1/utils/tf_logger.py:19: The name tf.summary.FileWriter is deprecated. Please use tf.compat.v1.summary.FileWriter instead.
+
+[I] - shapenet train dataset with cond_votes!
+[I] - shapenet val dataset with cond_votes!
+ |TRAIN_DATASET|=1000 |TEST_DATASET|=100
+ |TRAIN_DATALOADER|=125 |TEST_DATALOADER|=13
+[I] - use cond_votenet!
+[I] - use cond_voting_module!
+**** EPOCH 000 ****
+Current learning rate: 0.001000
+Current BN decay momentum: 0.500000
+2021-10-27 14:01:01.412963
+WARNING:tensorflow:From /home/manorz/votenet-1/utils/tf_logger.py:23: The name tf.Summary is deprecated. Please use tf.compat.v1.Summary instead.
+
+ ---- batch: 010 ----
+mean box_loss: 1.490814
+mean center_loss: 1.256497
+mean heading_cls_loss: 0.782969
+mean heading_reg_loss: 0.051997
+mean loss: 28.429199
+mean neg_ratio: 0.953125
+mean obj_acc: 0.587876
+mean objectness_loss: 0.146542
+mean pos_ratio: 0.012500
+mean sem_cls_loss: 0.697115
+mean size_cls_loss: 0.761750
+mean size_reg_loss: 0.027847
+mean vote_loss: 1.209124
+ ---- batch: 020 ----
+mean box_loss: 1.838079
+mean center_loss: 1.635872
+mean heading_cls_loss: 0.507890
+mean heading_reg_loss: 0.021376
+mean loss: 35.776213
+mean neg_ratio: 0.962500
+mean obj_acc: 0.987399
+mean objectness_loss: 0.083743
+mean pos_ratio: 0.009375
+mean sem_cls_loss: 0.581580
+mean size_cls_loss: 0.738068
+mean size_reg_loss: 0.056236
+mean vote_loss: 1.639513
+ ---- batch: 030 ----
+mean box_loss: 1.894370
+mean center_loss: 1.894370
+mean heading_cls_loss: 0.000000
+mean heading_reg_loss: 0.000000
+mean loss: 38.738977
+mean neg_ratio: 0.993750
+mean obj_acc: 1.000000
+mean objectness_loss: 0.040895
+mean pos_ratio: 0.000000
+mean sem_cls_loss: 0.000000
+mean size_cls_loss: 0.000000
+mean size_reg_loss: 0.000000
+mean vote_loss: 1.959080
+ ---- batch: 040 ----
+mean box_loss: 1.713497
+mean center_loss: 1.713497
+mean heading_cls_loss: 0.000000
+mean heading_reg_loss: 0.000000
+mean loss: 36.659945
+mean neg_ratio: 0.993750
+mean obj_acc: 1.000000
+mean objectness_loss: 0.025466
+mean pos_ratio: 0.000000
+mean sem_cls_loss: 0.000000
+mean size_cls_loss: 0.000000
+mean size_reg_loss: 0.000000
+mean vote_loss: 1.939764
+ ---- batch: 050 ----
+mean box_loss: 1.329912
+mean center_loss: 1.329912
+mean heading_cls_loss: 0.000000
+mean heading_reg_loss: 0.000000
+mean loss: 31.235256
+mean neg_ratio: 0.981250
+mean obj_acc: 1.000000
+mean objectness_loss: 0.016905
+mean pos_ratio: 0.000000
+mean sem_cls_loss: 0.000000
+mean size_cls_loss: 0.000000
+mean size_reg_loss: 0.000000
+mean vote_loss: 1.785161
+ ---- batch: 060 ----
+mean box_loss: 1.154999
+mean center_loss: 1.154999
+mean heading_cls_loss: 0.000000
+mean heading_reg_loss: 0.000000
+mean loss: 28.296320
+mean neg_ratio: 0.978125
+mean obj_acc: 1.000000
+mean objectness_loss: 0.012315
+mean pos_ratio: 0.000000
+mean sem_cls_loss: 0.000000
+mean size_cls_loss: 0.000000
+mean size_reg_loss: 0.000000
+mean vote_loss: 1.668475
+ ---- batch: 070 ----
+mean box_loss: 0.784614
+mean center_loss: 0.784614
+mean heading_cls_loss: 0.000000
+mean heading_reg_loss: 0.000000
+mean loss: 23.266327
+mean neg_ratio: 0.975000
+mean obj_acc: 1.000000
+mean objectness_loss: 0.009894
+mean pos_ratio: 0.000000
+mean sem_cls_loss: 0.000000
+mean size_cls_loss: 0.000000
+mean size_reg_loss: 0.000000
+mean vote_loss: 1.537071
+ ---- batch: 080 ----
+mean box_loss: 0.783932
+mean center_loss: 0.711475
+mean heading_cls_loss: 0.117006
+mean heading_reg_loss: 0.005632
+mean loss: 23.083441
+mean neg_ratio: 0.953125
+mean obj_acc: 0.993750
+mean objectness_loss: 0.023504
+mean pos_ratio: 0.006250
+mean sem_cls_loss: 0.187272
+mean size_cls_loss: 0.187918
+mean size_reg_loss: 0.036333
+mean vote_loss: 1.493933
+ ---- batch: 090 ----
+mean box_loss: 0.754978
+mean center_loss: 0.600420
+mean heading_cls_loss: 0.271121
+mean heading_reg_loss: 0.014188
+mean loss: 22.047393
+mean neg_ratio: 0.921875
+mean obj_acc: 0.987054
+mean objectness_loss: 0.044489
+mean pos_ratio: 0.012500
+mean sem_cls_loss: 0.824556
+mean size_cls_loss: 0.733671
+mean size_reg_loss: 0.039890
+mean vote_loss: 1.345061
+ ---- batch: 100 ----
+mean box_loss: 0.696317
+mean center_loss: 0.620771
+mean heading_cls_loss: 0.142393
+mean heading_reg_loss: 0.001802
+mean loss: 20.684239
+mean neg_ratio: 0.953125
+mean obj_acc: 0.993649
+mean objectness_loss: 0.024302
+mean pos_ratio: 0.006250
+mean sem_cls_loss: 0.617032
+mean size_cls_loss: 0.519878
+mean size_reg_loss: 0.007518
+mean vote_loss: 1.298252
+ ---- batch: 110 ----
+mean box_loss: 0.658677
+mean center_loss: 0.557749
+mean heading_cls_loss: 0.073032
+mean heading_reg_loss: 0.003024
+mean loss: 19.511666
+mean neg_ratio: 0.962500
+mean obj_acc: 0.993441
+mean objectness_loss: 0.023869
+mean pos_ratio: 0.006250
+mean sem_cls_loss: 0.376419
+mean size_cls_loss: 0.395963
+mean size_reg_loss: 0.051004
+mean vote_loss: 1.242913
+ ---- batch: 120 ----
+mean box_loss: 0.573537
+mean center_loss: 0.402506
+mean heading_cls_loss: 0.191001
+mean heading_reg_loss: 0.009442
+mean loss: 17.821702
+mean neg_ratio: 0.915625
+mean obj_acc: 0.986207
+mean objectness_loss: 0.036700
+mean pos_ratio: 0.012500
+mean sem_cls_loss: 1.109961
+mean size_cls_loss: 0.970080
+mean size_reg_loss: 0.045481
+mean vote_loss: 1.079287
+Eval batch: 0
+[I] - dump results!
+Eval batch: 10
+eval mean box_loss: 0.953487
+eval mean center_loss: 0.875645
+eval mean heading_cls_loss: 0.238005
+eval mean heading_reg_loss: 0.007341
+eval mean loss: 24.269191
+eval mean neg_ratio: 0.959135
+eval mean obj_acc: 0.994954
+eval mean objectness_loss: 0.026036
+eval mean pos_ratio: 0.004808
+eval mean sem_cls_loss: 0.324597
+eval mean size_cls_loss: 0.322206
+eval mean size_reg_loss: 0.014480
+eval mean vote_loss: 1.427954
+0 0.002331002331002331
+1 0.0
+2 0.003543221897652277
+3 0.0
+4 0.0
+5 0.0
+6 0.0
+7 0.0
+8 0.0
+9 0.0
+eval airplane Average Precision: 0.002331
+eval car Average Precision: 0.000000
+eval chair Average Precision: 0.003543
+eval guitar Average Precision: 0.000000
+eval knife Average Precision: 0.000000
+eval lamp Average Precision: 0.000000
+eval laptop Average Precision: 0.000000
+eval motorbike Average Precision: 0.000000
+eval pistol Average Precision: 0.000000
+eval table Average Precision: 0.000000
+eval mAP: 0.000587
+eval airplane Recall: 0.076923
+eval car Recall: 0.000000
+eval chair Recall: 0.111111
+eval guitar Recall: 0.000000
+eval knife Recall: 0.000000
+eval lamp Recall: 0.000000
+eval laptop Recall: 0.000000
+eval motorbike Recall: 0.000000
+eval pistol Recall: 0.000000
+eval table Recall: 0.000000
+eval AR: 0.018803
+**** EPOCH 001 ****
+Current learning rate: 0.001000
+Current BN decay momentum: 0.500000
+2021-10-27 14:02:04.096616
+ ---- batch: 010 ----
+mean box_loss: 0.557046
+mean center_loss: 0.439668
+mean heading_cls_loss: 0.064414
+mean heading_reg_loss: 0.001125
+mean loss: 15.888702
+mean neg_ratio: 0.925000
+mean obj_acc: 0.986882
+mean objectness_loss: 0.033299
+mean pos_ratio: 0.012500
+mean sem_cls_loss: 0.842393
+mean size_cls_loss: 0.812873
+mean size_reg_loss: 0.028525
+mean vote_loss: 0.930935
+ ---- batch: 020 ----
+mean box_loss: 0.472424
+mean center_loss: 0.427349
+mean heading_cls_loss: 0.020152
+mean heading_reg_loss: 0.001108
+mean loss: 14.601265
+mean neg_ratio: 0.915625
+mean obj_acc: 0.996296
+mean objectness_loss: 0.017154
+mean pos_ratio: 0.003125
+mean sem_cls_loss: 0.120682
+mean size_cls_loss: 0.171151
+mean size_reg_loss: 0.024836
+mean vote_loss: 0.967058
+ ---- batch: 030 ----
+mean box_loss: 0.565825
+mean center_loss: 0.434090
+mean heading_cls_loss: 0.077567
+mean heading_reg_loss: 0.001571
+mean loss: 15.825528
+mean neg_ratio: 0.921875
+mean obj_acc: 0.983743
+mean objectness_loss: 0.035030
+mean pos_ratio: 0.015625
+mean sem_cls_loss: 1.065964
+mean size_cls_loss: 0.973184
+mean size_reg_loss: 0.025089
+mean vote_loss: 0.892616
+ ---- batch: 040 ----
+mean box_loss: 0.550806
+mean center_loss: 0.438468
+mean heading_cls_loss: 0.093621
+mean heading_reg_loss: 0.007442
+mean loss: 15.633174
+mean neg_ratio: 0.918750
+mean obj_acc: 0.973749
+mean objectness_loss: 0.044479
+mean pos_ratio: 0.025000
+mean sem_cls_loss: 0.775732
+mean size_cls_loss: 0.781114
+mean size_reg_loss: 0.017422
+mean vote_loss: 0.912699
+ ---- batch: 050 ----
+mean box_loss: 0.357553
+mean center_loss: 0.336585
+mean heading_cls_loss: 0.011475
+mean heading_reg_loss: 0.001221
+mean loss: 12.168378
+mean neg_ratio: 0.903125
+mean obj_acc: 0.993333
+mean objectness_loss: 0.023038
+mean pos_ratio: 0.006250
+mean sem_cls_loss: 0.196094
+mean size_cls_loss: 0.175390
+mean size_reg_loss: 0.001060
+mean vote_loss: 0.828156
+ ---- batch: 060 ----
+mean box_loss: 0.473023
+mean center_loss: 0.306668
+mean heading_cls_loss: 0.097684
+mean heading_reg_loss: 0.004213
+mean loss: 13.807641
+mean neg_ratio: 0.887500
+mean obj_acc: 0.983211
+mean objectness_loss: 0.035831
+mean pos_ratio: 0.015625
+mean sem_cls_loss: 0.992418
+mean size_cls_loss: 1.098872
+mean size_reg_loss: 0.042486
+mean vote_loss: 0.790583
+ ---- batch: 070 ----
+mean box_loss: 0.517715
+mean center_loss: 0.367790
+mean heading_cls_loss: 0.028660
+mean heading_reg_loss: 0.002573
+mean loss: 14.220212
+mean neg_ratio: 0.900000
+mean obj_acc: 0.977015
+mean objectness_loss: 0.042537
+mean pos_ratio: 0.021875
+mean sem_cls_loss: 1.092756
+mean size_cls_loss: 1.084725
+mean size_reg_loss: 0.036014
+mean vote_loss: 0.773762
+ ---- batch: 080 ----
+mean box_loss: 0.649759
+mean center_loss: 0.404878
+mean heading_cls_loss: 0.283222
+mean heading_reg_loss: 0.020269
+mean loss: 15.806721
+mean neg_ratio: 0.871875
+mean obj_acc: 0.971913
+mean objectness_loss: 0.053083
+mean pos_ratio: 0.025000
+mean sem_cls_loss: 1.384556
+mean size_cls_loss: 1.409689
+mean size_reg_loss: 0.055321
+mean vote_loss: 0.765916
+ ---- batch: 090 ----
+mean box_loss: 0.452389
+mean center_loss: 0.329501
+mean heading_cls_loss: 0.066628
+mean heading_reg_loss: 0.000583
+mean loss: 12.891530
+mean neg_ratio: 0.890625
+mean obj_acc: 0.983103
+mean objectness_loss: 0.042141
+mean pos_ratio: 0.015625
+mean sem_cls_loss: 0.866964
+mean size_cls_loss: 0.854980
+mean size_reg_loss: 0.030144
+mean vote_loss: 0.728997
+ ---- batch: 100 ----
+mean box_loss: 0.455899
+mean center_loss: 0.303215
+mean heading_cls_loss: 0.128488
+mean heading_reg_loss: 0.001370
+mean loss: 12.854228
+mean neg_ratio: 0.878125
+mean obj_acc: 0.971737
+mean objectness_loss: 0.048611
+mean pos_ratio: 0.025000
+mean sem_cls_loss: 1.190338
+mean size_cls_loss: 1.154198
+mean size_reg_loss: 0.023046
+mean vote_loss: 0.686185
+ ---- batch: 110 ----
+mean box_loss: 0.527671
+mean center_loss: 0.309160
+mean heading_cls_loss: 0.135058
+mean heading_reg_loss: 0.002201
+mean loss: 13.819678
+mean neg_ratio: 0.853125
+mean obj_acc: 0.947740
+mean objectness_loss: 0.074178
+mean pos_ratio: 0.046875
+mean sem_cls_loss: 1.566947
+mean size_cls_loss: 1.595310
+mean size_reg_loss: 0.043273
+mean vote_loss: 0.660513
+ ---- batch: 120 ----
+mean box_loss: 0.445827
+mean center_loss: 0.281138
+mean heading_cls_loss: 0.073475
+mean heading_reg_loss: 0.003461
+mean loss: 11.966097
+mean neg_ratio: 0.862500
+mean obj_acc: 0.975263
+mean objectness_loss: 0.049495
+mean pos_ratio: 0.021875
+mean sem_cls_loss: 0.929660
+mean size_cls_loss: 0.947684
+mean size_reg_loss: 0.059112
+mean vote_loss: 0.633069
+**** EPOCH 002 ****
+Current learning rate: 0.001000
+Current BN decay momentum: 0.500000
+2021-10-27 14:02:47.555382
+ ---- batch: 010 ----
+mean box_loss: 0.421821
+mean center_loss: 0.271068
+mean heading_cls_loss: 0.110193
+mean heading_reg_loss: 0.012171
+mean loss: 11.274609
+mean neg_ratio: 0.818750
+mean obj_acc: 0.962536
+mean objectness_loss: 0.057848
+mean pos_ratio: 0.028125
+mean sem_cls_loss: 0.969697
+mean size_cls_loss: 0.972201
+mean size_reg_loss: 0.030343
+mean vote_loss: 0.579746
+ ---- batch: 020 ----
+mean box_loss: 0.414492
+mean center_loss: 0.250732
+mean heading_cls_loss: 0.101717
+mean heading_reg_loss: 0.002405
+mean loss: 11.584569
+mean neg_ratio: 0.809375
+mean obj_acc: 0.957129
+mean objectness_loss: 0.059150
+mean pos_ratio: 0.037500
+mean sem_cls_loss: 1.188314
+mean size_cls_loss: 1.228220
+mean size_reg_loss: 0.028362
+mean vote_loss: 0.595558
+ ---- batch: 030 ----
+mean box_loss: 0.478853
+mean center_loss: 0.234557
+mean heading_cls_loss: 0.124373
+mean heading_reg_loss: 0.032341
+mean loss: 12.270856
+mean neg_ratio: 0.812500
+mean obj_acc: 0.942178
+mean objectness_loss: 0.083942
+mean pos_ratio: 0.046875
+mean sem_cls_loss: 1.682842
+mean size_cls_loss: 1.532865
+mean size_reg_loss: 0.046231
+mean vote_loss: 0.537977
+ ---- batch: 040 ----
+mean box_loss: 0.410033
+mean center_loss: 0.267020
+mean heading_cls_loss: 0.038468
+mean heading_reg_loss: 0.001343
+mean loss: 10.861185
+mean neg_ratio: 0.806250
+mean obj_acc: 0.943700
+mean objectness_loss: 0.050310
+mean pos_ratio: 0.025000
+mean sem_cls_loss: 1.291321
+mean size_cls_loss: 1.283449
+mean size_reg_loss: 0.009478
+mean vote_loss: 0.521798
+ ---- batch: 050 ----
+mean box_loss: 0.484294
+mean center_loss: 0.242510
+mean heading_cls_loss: 0.120637
+mean heading_reg_loss: 0.002450
+mean loss: 12.246269
+mean neg_ratio: 0.803125
+mean obj_acc: 0.919264
+mean objectness_loss: 0.065085
+mean pos_ratio: 0.046875
+mean sem_cls_loss: 1.891436
+mean size_cls_loss: 1.877636
+mean size_reg_loss: 0.039507
+mean vote_loss: 0.518647
+ ---- batch: 060 ----
+mean box_loss: 0.370721
+mean center_loss: 0.224511
+mean heading_cls_loss: 0.070908
+mean heading_reg_loss: 0.002175
+mean loss: 10.527895
+mean neg_ratio: 0.787500
+mean obj_acc: 0.928630
+mean objectness_loss: 0.066945
+mean pos_ratio: 0.034375
+mean sem_cls_loss: 1.284469
+mean size_cls_loss: 1.247919
+mean size_reg_loss: 0.012151
+mean vote_loss: 0.520149
+ ---- batch: 070 ----
+mean box_loss: 0.454969
+mean center_loss: 0.222919
+mean heading_cls_loss: 0.034504
+mean heading_reg_loss: 0.002260
+mean loss: 11.418293
+mean neg_ratio: 0.787500
+mean obj_acc: 0.943934
+mean objectness_loss: 0.065362
+mean pos_ratio: 0.040625
+mean sem_cls_loss: 1.769823
+mean size_cls_loss: 1.797498
+mean size_reg_loss: 0.046590
+mean vote_loss: 0.477197
+ ---- batch: 080 ----
+mean box_loss: 0.629480
+mean center_loss: 0.363356
+mean heading_cls_loss: 0.138898
+mean heading_reg_loss: 0.011880
+mean loss: 13.568218
+mean neg_ratio: 0.771875
+mean obj_acc: 0.913127
+mean objectness_loss: 0.108536
+mean pos_ratio: 0.056250
+mean sem_cls_loss: 1.952201
+mean size_cls_loss: 1.950767
+mean size_reg_loss: 0.045278
+mean vote_loss: 0.477853
+ ---- batch: 090 ----
+mean box_loss: 0.534145
+mean center_loss: 0.278691
+mean heading_cls_loss: 0.082167
+mean heading_reg_loss: 0.001751
+mean loss: 12.460874
+mean neg_ratio: 0.778125
+mean obj_acc: 0.916008
+mean objectness_loss: 0.068928
+mean pos_ratio: 0.040625
+mean sem_cls_loss: 1.907397
+mean size_cls_loss: 1.945783
+mean size_reg_loss: 0.050909
+mean vote_loss: 0.486738
+ ---- batch: 100 ----
+mean box_loss: 0.409190
+mean center_loss: 0.217643
+mean heading_cls_loss: 0.058786
+mean heading_reg_loss: 0.004363
+mean loss: 10.895577
+mean neg_ratio: 0.790625
+mean obj_acc: 0.890497
+mean objectness_loss: 0.098100
+mean pos_ratio: 0.053125
+mean sem_cls_loss: 1.583631
+mean size_cls_loss: 1.543353
+mean size_reg_loss: 0.026970
+mean vote_loss: 0.472955
+ ---- batch: 110 ----
+mean box_loss: 0.384914
+mean center_loss: 0.215455
+mean heading_cls_loss: 0.021403
+mean heading_reg_loss: 0.001226
+mean loss: 10.672549
+mean neg_ratio: 0.784375
+mean obj_acc: 0.886693
+mean objectness_loss: 0.066860
+mean pos_ratio: 0.037500
+mean sem_cls_loss: 1.368463
+mean size_cls_loss: 1.348798
+mean size_reg_loss: 0.031214
+mean vote_loss: 0.512065
+ ---- batch: 120 ----
+mean box_loss: 0.425224
+mean center_loss: 0.233297
+mean heading_cls_loss: 0.032697
+mean heading_reg_loss: 0.004548
+mean loss: 10.825940
+mean neg_ratio: 0.803125
+mean obj_acc: 0.900541
+mean objectness_loss: 0.074329
+mean pos_ratio: 0.043750
+mean sem_cls_loss: 1.527795
+mean size_cls_loss: 1.560838
+mean size_reg_loss: 0.028026
+mean vote_loss: 0.467426
+**** EPOCH 003 ****
+Current learning rate: 0.001000
+Current BN decay momentum: 0.500000
+2021-10-27 14:03:31.435536
