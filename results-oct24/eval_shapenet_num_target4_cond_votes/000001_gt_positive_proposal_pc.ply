@@ -1,0 +1,9 @@
+ply
+format ascii 1.0
+element vertex 1
+comment vertices
+property float x
+property float y
+property float z
+end_header
+-0.382921963930130005 -0.901767969131469727 0.0609198212623596191
