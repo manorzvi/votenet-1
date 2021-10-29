@@ -1,0 +1,60 @@
+Namespace(DUMP_DIR='results-oct29/eval_shapenet_num_target32_cond_votes', ap_iou_thresholds='0.25,0.5', batch_size=8, checkpoint_path='results-oct29/log_shapenet_num_target32_cond_votes/checkpoint.tar', cluster_sampling='seed_fps', conf_thresh=0.05, dataset='shapenet', dump_dir='results-oct29/eval_shapenet_num_target32_cond_votes', faster_eval=False, model='cond_votenet', neg_votes_factor=1.0, nms_iou=0.25, num_point=20000, num_target=32, per_class_proposal=True, rand_votes_factor=1.0, shuffle_dataset=False, use_3d_nms=True, use_cls_nms=True, use_cond_votes=True, use_neg_votes=False, use_old_type_nms=False, use_rand_votes=False, use_two_backbones=False, vote_factor=1)
+Loaded checkpoint results-oct29/log_shapenet_num_target32_cond_votes/checkpoint.tar (epoch: 120)
+2021-10-29 16:10:54.923070
+eval mean box_loss: 0.155089
+eval mean center_loss: 0.005842
+eval mean heading_cls_loss: 0.918295
+eval mean heading_reg_loss: 0.042355
+eval mean loss: 2.533463
+eval mean neg_ratio: 0.859976
+eval mean obj_acc: 0.964728
+eval mean objectness_loss: 0.022157
+eval mean pos_ratio: 0.124099
+eval mean sem_cls_loss: 0.058548
+eval mean size_cls_loss: 0.058861
+eval mean size_reg_loss: 0.009177
+eval mean vote_loss: 0.081324
+eval airplane Average Precision: 0.897222
+eval car Average Precision: 0.992157
+eval chair Average Precision: 0.951386
+eval guitar Average Precision: 0.900826
+eval knife Average Precision: 0.827160
+eval lamp Average Precision: 0.917773
+eval laptop Average Precision: 1.000000
+eval motorbike Average Precision: 0.916667
+eval pistol Average Precision: 1.000000
+eval table Average Precision: 0.995238
+eval mAP: 0.939843
+eval airplane Recall: 1.000000
+eval car Recall: 1.000000
+eval chair Recall: 1.000000
+eval guitar Recall: 0.909091
+eval knife Recall: 0.888889
+eval lamp Recall: 1.000000
+eval laptop Recall: 1.000000
+eval motorbike Recall: 1.000000
+eval pistol Recall: 1.000000
+eval table Recall: 1.000000
+eval AR: 0.979798
+eval airplane Average Precision: 0.897222
+eval car Average Precision: 0.933333
+eval chair Average Precision: 0.951386
+eval guitar Average Precision: 0.223140
+eval knife Average Precision: 0.111111
+eval lamp Average Precision: 0.513703
+eval laptop Average Precision: 1.000000
+eval motorbike Average Precision: 0.916667
+eval pistol Average Precision: 0.000000
+eval table Average Precision: 0.995238
+eval mAP: 0.654180
+eval airplane Recall: 1.000000
+eval car Recall: 0.933333
+eval chair Recall: 1.000000
+eval guitar Recall: 0.454545
+eval knife Recall: 0.111111
+eval lamp Recall: 0.705882
+eval laptop Recall: 1.000000
+eval motorbike Recall: 1.000000
+eval pistol Recall: 0.000000
+eval table Recall: 1.000000
+eval AR: 0.720487
