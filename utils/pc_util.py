@@ -423,8 +423,12 @@ def write_oriented_bbox(scene_bbox, out_filename):
         scene.add_geometry(convert_oriented_box_to_trimesh_fmt(box))        
     
     mesh_list = trimesh.util.concatenate(scene.dump())
-    # save to ply file    
-    trimesh.io.export.export_mesh(mesh_list, out_filename, file_type='ply')
+    # save to ply file
+    try:
+        trimesh.io.export.export_mesh(mesh_list, out_filename, file_type='ply')
+    except AttributeError as ae:
+        print(ae)
+        mesh_list.export(out_filename)
     
     return
 

@@ -1,3 +1,4 @@
+import sys
 import os
 import argparse
 import random
@@ -6,10 +7,14 @@ import json
 import numpy as np
 from loguru import logger
 
-from utils import set_seed, get_all_files, load_npy_pc, sample_npy_pc, get_bbox_from_pc, check_intersection
-from plot_utils import plot_scene_pc
+from utils import set_seed, get_all_files, load_npy_pc, sample_npy_pc, check_intersection, \
+    get_pc_measures, get_bbox_from_measures
 from shapenet_transforms import ShapenetTransforms
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(BASE_DIR)
+sys.path.append(os.path.join(ROOT_DIR, 'utils'))
+import pc_util
 
 class Parser(object):
 
@@ -23,6 +28,7 @@ class Parser(object):
         parser.add_argument("--min-n-objects", type=int, default=1)
         parser.add_argument("--max-n-objects", type=int, default=16)
         parser.add_argument("--with-repetition", action="store_true", default=False)
+        parser.add_argument("--rotate", action="store_true", default=False)
         parser.add_argument("--pc-n-samples", type=int)
         parser.add_argument("--n-scenes", type=int, default=10)
         parser.add_argument("--excludes", type=str, nargs="+", default=[])
@@ -83,12 +89,17 @@ if __name__ == '__main__':
         for path in paths:
             obj_pc = load_npy_pc(path)
             obj_pc = transforms.to_standard(obj_pc)
-            obj_bbox = get_bbox_from_pc(obj_pc, path.split('/')[-2])
+
+            _, _, _, _, _, _, centerx, centery, centerz, sizex, sizey, sizez = get_pc_measures(obj_pc)
+
+            rotation = 0.0
+            if opts.rotate:
+                rotation = 2 * np.pi * np.random.rand(1)
+                obj_pc = transforms.to_rotate(obj_pc, alpha=rotation)
+
+            obj_bbox = get_bbox_from_measures(centerx, centery, centerz, sizex, sizey, sizez, rotation, path.split('/')[-2])
+
             obj_pc, choices = sample_npy_pc(obj_pc, opts.pc_n_samples)
-            # if opts.debug:
-            #     logger.debug('Plot original object')
-            #     corners3d = get_3dcorners_from_bbox(bbox)
-            #     plot_pc(pc, corners3d, path.split('/')[-2])
 
             t_vec = transforms.rand_unit2_vector()
             
@@ -111,19 +122,17 @@ if __name__ == '__main__':
                     logger.warning('Early-stopping add bboxes to scene loop')
                     overlapping_bboxes = False
 
-            # if opts.debug:
-            #     logger.debug('Plot object after translation')
-            #     corners3d = get_3dcorners_from_bbox(bbox)
-            #     plot_pc(pc, corners3d, path.split('/')[-2])
-
             scene_data['object_pc'].append(obj_pc)
             scene_data['scene_pc'].append(pc)
             scene_data['scene_bbox'].append(bbox)
 
         if opts.debug:
-            logger.debug('Plot scene')
-            scene_pc = np.concatenate(scene_data['scene_pc'], axis=0)
-            plot_scene_pc(scene_pc, scene_data['scene_bbox'])
+            # logger.debug('Plot scene')
+            # scene_pc = np.concatenate(scene_data['scene_pc'], axis=0)
+            # plot_scene_pc(scene_pc, scene_data['scene_bbox'])
+            pc_util.write_ply(np.concatenate(scene_data['scene_pc']), os.path.join('.', 'pc.ply'))
+            pc_util.write_oriented_bbox(np.vstack(scene_data['scene_bbox'])[:, :-1], os.path.join('.', 'bbox.ply'))
+
 
         # Save scene
         scene_data['object_pc'] = [x.tolist() for x in scene_data['object_pc']]

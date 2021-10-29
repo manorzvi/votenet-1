@@ -70,11 +70,20 @@ def sample_npy_pc(pc: np.ndarray, n_samples: int = None) -> Tuple[np.ndarray, np
     return pc, choices
 
 
-def get_bbox_from_pc(pc: np.ndarray, pc_classname: str) -> np.ndarray:
+def get_bbox_from_pc(pc: np.ndarray, heading_angle: float, pc_classname: str) -> np.ndarray:
     _, _, _, _, _, _, centerx, centery, centerz, sizex, sizey, sizez = get_pc_measures(pc)
-    heading_angle = 0.0  # I observed all ShapeNet point clouds are centered, aligned with x axis & scaled (manorz, Oct 2)
+    # heading_angle = 0.0  # I observed all ShapeNet point clouds are centered, aligned with x axis & scaled (manorz, Oct 2)
     pc_class = shapenet_config.classname2class[pc_classname]
-    bbox = np.asarray([centerx, centery, centerz, sizex, sizey, sizez, heading_angle, pc_class], dtype=np.float)
+    bbox = np.asarray([centerx, centery, centerz, sizex, sizey, sizez, -heading_angle, pc_class], dtype=np.float)
+    # projsizex = np.cos(heading_angle) * sizex
+    # projsizey = np.sin(heading_angle) * sizey
+    # bbox = np.asarray([centerx, centery, centerz, projsizex, projsizey, sizez, heading_angle, pc_class], dtype=np.float)
+    return bbox
+
+
+def get_bbox_from_measures(centerx, centery, centerz, sizex, sizey, sizez, heading_angle: float, pc_classname: str) -> np.ndarray:
+    pc_class = shapenet_config.classname2class[pc_classname]
+    bbox = np.asarray([centerx, centery, centerz, sizex, sizey, sizez, -heading_angle, pc_class], dtype=np.float)
     return bbox
 
 
@@ -108,6 +117,42 @@ def get_3dcorners_from_bbox(bbox: np.ndarray, orientation: str = 'xy') -> np.nda
     corners_3d[2, :] += centerz
 
     return np.transpose(corners_3d)
+
+
+def get_axis_aligned_pc_size(pc: np.ndarray) -> Tuple[float, float, float, float, float, float]:
+    minx, maxx = np.min(pc[:, 0]), np.max(pc[:, 0])
+    miny, maxy = np.min(pc[:, 1]), np.max(pc[:, 1])
+    minz, maxz = np.min(pc[:, 2]), np.max(pc[:, 2])
+
+    return minx, maxx, miny, maxy, minz, maxz
+
+
+def get_bbox_2d_from_pc(pc: np.ndarray) -> np.ndarray:
+    minx, maxx, miny, maxy, minz, maxz = get_axis_aligned_pc_size(pc)
+
+    bbox_2d = np.array(
+        [
+            [minx, miny, minz],
+            [minx, miny, maxz],
+            [minx, maxy, minz],
+            [minx, maxy, maxz],
+            [maxx, miny, minz],
+            [maxx, miny, maxz],
+            [maxx, maxy, minz],
+            [maxx, maxy, maxz],
+        ],
+        dtype=np.float32,
+    )
+
+    return bbox_2d
+
+
+def get_bbox_1d_from_bbox_2d(bbox_2d: np.ndarray, sizex: float, sizey: float, sizez: float, heading_angle: float, pc_classname: str) -> np.ndarray:
+    centerx, centery, centerz = np.mean(bbox_2d, axis=0)
+    pc_class = shapenet_config.classname2class[pc_classname]
+    bbox_1d = np.asarray([centerx, centery, centerz, sizex, sizey, sizez, heading_angle, pc_class], dtype=np.float)
+
+    return bbox_1d
 
 
 def get_pc_measures(pc: np.ndarray):

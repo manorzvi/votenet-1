@@ -26,7 +26,7 @@ class ShapenetTransforms:
         return pc
 
     def to_rotate(self, pc: np.ndarray, alpha: float, orientation: str = "xy") -> np.ndarray:
-        rotation_matrix = self.rotation_matrices[orientation](-1.0 * alpha)
+        rotation_matrix = self.rotation_matrices[orientation](-alpha)
         pc = pc @ rotation_matrix
         return pc
 
