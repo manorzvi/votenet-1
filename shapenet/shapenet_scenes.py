@@ -16,6 +16,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
 import pc_util
 
+
 class Parser(object):
 
     @staticmethod
@@ -93,9 +94,10 @@ if __name__ == '__main__':
             _, _, _, _, _, _, centerx, centery, centerz, sizex, sizey, sizez = get_pc_measures(obj_pc)
 
             rotation = 0.0
+            pc = obj_pc.copy()
             if opts.rotate:
                 rotation = 2 * np.pi * np.random.rand(1)
-                obj_pc = transforms.to_rotate(obj_pc, alpha=rotation)
+                pc = transforms.to_rotate(pc, alpha=rotation)
 
             obj_bbox = get_bbox_from_measures(centerx, centery, centerz, sizex, sizey, sizez, rotation, path.split('/')[-2])
 
@@ -103,7 +105,6 @@ if __name__ == '__main__':
 
             t_vec = transforms.rand_unit2_vector()
             
-            pc = obj_pc.copy()
             bbox = obj_bbox.copy()
             overlapping_bboxes = True
             counter = 0
