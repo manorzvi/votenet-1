@@ -59,7 +59,7 @@ python eval.py --dataset shapenet --model cond_votenet --checkpoint_path <log di
 ## Examples
 
 ### Eight Objects, Conditional Votes, large step size
-![teaser](https://github.com/manorzvi/votenet-1/blob/large_step_scene.gif)
+![teaser](https://github.com/manorzvi/votenet-1/blob/shapenet-workinet-real/large_step_scene.gif)
 ### Eight Objects, Conditional Votes, small step size
 ![teaser](https://github.com/manorzvi/votenet-1/blob/small_step_scene.gif)
 Our method excelled to detect & classify objects, even when occluded and very crowded scenes.  
