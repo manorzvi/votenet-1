@@ -3,8 +3,6 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-""" Evaluation routine for 3D object detection with SUN RGB-D and ScanNet.
-"""
 
 import os
 import sys
@@ -12,6 +10,7 @@ import numpy as np
 from datetime import datetime
 import argparse
 import importlib
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -32,9 +31,23 @@ parser.add_argument('--batch_size', type=int, default=8, help='Batch Size during
 parser.add_argument('--vote_factor', type=int, default=1, help='Number of votes generated from each seed [default: 1]')
 parser.add_argument('--cluster_sampling', default='vote_fps', help='Sampling strategy for vote clusters: vote_fps, seed_fps, random [default: vote_fps]')
 parser.add_argument('--ap_iou_thresholds', default='0.25,0.5', help='A list of AP IoU thresholds [default: 0.25,0.5]')
-parser.add_argument('--no_height', action='store_true', help='Do NOT use height signal in input.')
-parser.add_argument('--use_color', action='store_true', help='Use RGB color in input.')
-parser.add_argument('--use_sunrgbd_v2', action='store_true', help='Use SUN RGB-D V2 box labels.')
+
+parser.add_argument('--use_cond_votes', action='store_true', default=False,
+                    help='Use conditional votes label (only points associated with the conditioned object vote)')
+
+parser.add_argument('--use_neg_votes', action='store_true', default=False,
+                    help='All points can vote, but only the points associated with the conditioned object vote to the center.'
+                         'The rest vote to the negative direction.')
+parser.add_argument('--neg_votes_factor', type=float, default=1.0)
+
+parser.add_argument('--use_rand_votes', action='store_true', default=False,
+                    help='All points can vote, but only the points associated with the conditioned object vote to the center.'
+                         'The rest vote to a random point.')
+parser.add_argument('--rand_votes_factor', type=float, default=1.0)
+
+parser.add_argument('--use_two_backbones', action='store_true', default=False,
+                    help='Use another pointnet++ backbone net for the conditional point cloud.')
+
 parser.add_argument('--use_3d_nms', action='store_true', help='Use 3D NMS instead of 2D NMS.')
 parser.add_argument('--use_cls_nms', action='store_true', help='Use per class NMS.')
 parser.add_argument('--use_old_type_nms', action='store_true', help='Use old type of NMS, IoBox2Area.')
@@ -46,7 +59,10 @@ parser.add_argument('--shuffle_dataset', action='store_true', help='Shuffle the 
 FLAGS = parser.parse_args()
 
 if FLAGS.use_cls_nms:
-    assert(FLAGS.use_3d_nms)
+    assert FLAGS.use_3d_nms
+
+assert not (FLAGS.use_rand_votes and not FLAGS.use_cond_votes), "If use_rand_votes=True, use_cond_votes=True is a must!"
+assert not (FLAGS.model == 'cond_votenet' and FLAGS.dataset != 'shapenet'), "If model=cond_votenet, dataset=shapenet is a must!"
 
 # ------------------------------------------------------------------------- GLOBAL CONFIG BEG
 BATCH_SIZE = FLAGS.batch_size
@@ -61,57 +77,70 @@ AP_IOU_THRESHOLDS = [float(x) for x in FLAGS.ap_iou_thresholds.split(',')]
 if not os.path.exists(DUMP_DIR): os.mkdir(DUMP_DIR)
 DUMP_FOUT = open(os.path.join(DUMP_DIR, 'log_eval.txt'), 'w')
 DUMP_FOUT.write(str(FLAGS)+'\n')
+
+
 def log_string(out_str):
     DUMP_FOUT.write(out_str+'\n')
     DUMP_FOUT.flush()
     print(out_str)
 
-# Init datasets and dataloaders 
+
 def my_worker_init_fn(worker_id):
     np.random.seed(np.random.get_state()[1][0] + worker_id)
 
-if FLAGS.dataset == 'sunrgbd':
-    sys.path.append(os.path.join(ROOT_DIR, 'sunrgbd'))
-    from sunrgbd_detection_dataset import SunrgbdDetectionVotesDataset, MAX_NUM_OBJ
-    from model_util_sunrgbd import SunrgbdDatasetConfig
-    DATASET_CONFIG = SunrgbdDatasetConfig()
-    TEST_DATASET = SunrgbdDetectionVotesDataset('val', num_points=NUM_POINT,
-        augment=False, use_color=FLAGS.use_color, use_height=(not FLAGS.no_height),
-        use_v1=(not FLAGS.use_sunrgbd_v2))
-elif FLAGS.dataset == 'scannet':
-    sys.path.append(os.path.join(ROOT_DIR, 'scannet'))
-    from scannet_detection_dataset import ScannetDetectionDataset, MAX_NUM_OBJ
-    from model_util_scannet import ScannetDatasetConfig
-    DATASET_CONFIG = ScannetDatasetConfig()
-    TEST_DATASET = ScannetDetectionDataset('val', num_points=NUM_POINT,
+
+if FLAGS.dataset == 'shapenet':
+    sys.path.append(os.path.join(ROOT_DIR, 'shapenet'))
+    from shapenet_detection_dataset import ShapenetDetectionVotesDataset
+    from model_util_shapenet import ShapenetDatasetConfig
+
+    DATASET_CONFIG = ShapenetDatasetConfig()
+    TEST_DATASET = ShapenetDetectionVotesDataset(
+        'val', num_points=NUM_POINT,
         augment=False,
-        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height))
+        use_cond_votes=FLAGS.use_cond_votes,
+        use_rand_votes=FLAGS.use_rand_votes, rand_votes_factor=FLAGS.rand_votes_factor,
+        use_neg_votes=FLAGS.use_neg_votes, neg_votes_factor=FLAGS.neg_votes_factor,
+    )
 else:
-    print('Unknown dataset %s. Exiting...'%(FLAGS.dataset))
+    print(f'Unknown dataset {FLAGS.dataset}. Exiting...')
     exit(-1)
-print(len(TEST_DATASET))
+
+print(f'|TEST_DATASET|={len(TEST_DATASET)}')
+
 TEST_DATALOADER = DataLoader(TEST_DATASET, batch_size=BATCH_SIZE,
     shuffle=FLAGS.shuffle_dataset, num_workers=4, worker_init_fn=my_worker_init_fn)
+
+print(f'|TEST_DATALOADER|={len(TEST_DATALOADER)}')
 
 # Init the model and optimzier
 MODEL = importlib.import_module(FLAGS.model) # import network module
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-num_input_channel = int(FLAGS.use_color)*3 + int(not FLAGS.no_height)*1
 
-if FLAGS.model == 'boxnet':
-    Detector = MODEL.BoxNet
+if FLAGS.model == 'cond_votenet':
+    Detector = MODEL.CondVoteNet
 else:
-    Detector = MODEL.VoteNet
+    print(f'Unknown model {FLAGS.model}. Exiting...')
+    exit(-1)
 
-net = Detector(num_class=DATASET_CONFIG.num_class,
-               num_heading_bin=DATASET_CONFIG.num_heading_bin,
-               num_size_cluster=DATASET_CONFIG.num_size_cluster,
-               mean_size_arr=DATASET_CONFIG.mean_size_arr,
-               num_proposal=FLAGS.num_target,
-               input_feature_dim=num_input_channel,
-               vote_factor=FLAGS.vote_factor,
-               sampling=FLAGS.cluster_sampling)
+if FLAGS.model == 'cond_votenet':
+    net = Detector(
+        num_class=DATASET_CONFIG.num_class,
+        num_heading_bin=DATASET_CONFIG.num_heading_bin,
+        num_size_cluster=DATASET_CONFIG.num_size_cluster,
+        mean_size_arr=DATASET_CONFIG.mean_size_arr,
+        num_proposal=FLAGS.num_target,
+        input_feature_dim=0,
+        vote_factor=FLAGS.vote_factor,
+        sampling=FLAGS.cluster_sampling,
+        use_two_backbones=FLAGS.use_two_backbones,
+    )
+else:
+    print(f'Unknown model {FLAGS.model}. Exiting...')
+    exit(-1)
+
 net.to(device)
+
 criterion = MODEL.get_loss
 
 # Load the Adam optimizer
@@ -126,10 +155,17 @@ if CHECKPOINT_PATH is not None and os.path.isfile(CHECKPOINT_PATH):
     log_string("Loaded checkpoint %s (epoch: %d)"%(CHECKPOINT_PATH, epoch))
 
 # Used for AP calculation
-CONFIG_DICT = {'remove_empty_box': (not FLAGS.faster_eval), 'use_3d_nms': FLAGS.use_3d_nms, 'nms_iou': FLAGS.nms_iou,
-    'use_old_type_nms': FLAGS.use_old_type_nms, 'cls_nms': FLAGS.use_cls_nms, 'per_class_proposal': FLAGS.per_class_proposal,
-    'conf_thresh': FLAGS.conf_thresh, 'dataset_config':DATASET_CONFIG}
-# ------------------------------------------------------------------------- GLOBAL CONFIG END
+CONFIG_DICT = {
+    'remove_empty_box': (not FLAGS.faster_eval),
+    'use_3d_nms': FLAGS.use_3d_nms,
+    'nms_iou': FLAGS.nms_iou,
+    'use_old_type_nms': FLAGS.use_old_type_nms,
+    'cls_nms': FLAGS.use_cls_nms,
+    'per_class_proposal': FLAGS.per_class_proposal,
+    'conf_thresh': FLAGS.conf_thresh,
+    'dataset_config': DATASET_CONFIG
+}
+
 
 def evaluate_one_epoch():
     stat_dict = {}
@@ -143,7 +179,16 @@ def evaluate_one_epoch():
             batch_data_label[key] = batch_data_label[key].to(device)
         
         # Forward pass
-        inputs = {'point_clouds': batch_data_label['point_clouds']}
+        if FLAGS.dataset == 'shapenet':
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds'],
+                'cond_point_clouds': batch_data_label['cond_point_clouds']
+            }
+        else:
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds'],
+            }
+
         with torch.no_grad():
             end_points = net(inputs)
 
@@ -189,6 +234,7 @@ def eval():
     # REF: https://github.com/pytorch/pytorch/issues/5059
     np.random.seed()
     loss = evaluate_one_epoch()
+
 
 if __name__=='__main__':
     eval()

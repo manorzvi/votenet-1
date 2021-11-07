@@ -31,11 +31,13 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
     Returns:
         None
     '''
+    print('[I] - dump results!')
     if not os.path.exists(dump_dir):
         os.system('mkdir %s'%(dump_dir))
 
     # INPUT
     point_clouds = end_points['point_clouds'].cpu().numpy()
+    cond_point_cloud = end_points['cond_point_clouds'].cpu().numpy()
     batch_size = point_clouds.shape[0]
 
     # NETWORK OUTPUTS
@@ -60,10 +62,12 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
 
     for i in range(batch_size):
         pc = point_clouds[i,:,:]
+        cond_pc = cond_point_cloud[i,:,:]
         objectness_prob = softmax(objectness_scores[i,:,:])[:,1] # (K,)
 
         # Dump various point clouds
         pc_util.write_ply(pc, os.path.join(dump_dir, '%06d_pc.ply'%(idx_beg+i)))
+        pc_util.write_ply(cond_pc, os.path.join(dump_dir, '%06d_cond_pc.ply' % (idx_beg + i)))
         pc_util.write_ply(seed_xyz[i,:,:], os.path.join(dump_dir, '%06d_seed_pc.ply'%(idx_beg+i)))
         if 'vote_xyz' in end_points:
             pc_util.write_ply(end_points['vote_xyz'][i,:,:], os.path.join(dump_dir, '%06d_vgen_pc.ply'%(idx_beg+i)))
@@ -101,6 +105,16 @@ def dump_results(end_points, dump_dir, config, inference_switch=False):
     gt_size_residual = end_points['size_residual_label'].cpu().numpy() # B,K2,3
     objectness_label = end_points['objectness_label'].detach().cpu().numpy() # (B,K,)
     objectness_mask = end_points['objectness_mask'].detach().cpu().numpy() # (B,K,)
+
+    gt_votes = end_points['vote_label'].detach().cpu().numpy() # (B,N,9)
+    gt_vote_mask = end_points['vote_label_mask'].detach().cpu().numpy() # (B,N,)
+    gt_vote_mask = np.expand_dims(gt_vote_mask, 2)
+    gt_vote_mask = np.repeat(gt_vote_mask, repeats=9, axis=2)
+    gt_masked_votes = gt_votes * gt_vote_mask
+
+    for i in range(batch_size):
+        pc_util.write_ply(gt_votes[i, :, 0:3], os.path.join(dump_dir, '%06d_gt_votes.ply' % (idx_beg + i)))
+        pc_util.write_ply(gt_masked_votes[i, :, 0:3], os.path.join(dump_dir, '%06d_gt_masked_votes.ply' % (idx_beg + i)))
 
     for i in range(batch_size):
         if np.sum(objectness_label[i,:])>0:

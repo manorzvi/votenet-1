@@ -1,0 +1,12 @@
+ply
+format ascii 1.0
+element vertex 1
+comment vertices
+property float x
+property float y
+property float z
+property uchar red
+property uchar green
+property uchar blue
+end_header
+0.37312731146812439 -1.16060495376586914 0.353076279163360596 0 0 127

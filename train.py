@@ -3,19 +3,6 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-""" Training routine for 3D object detection with SUN RGB-D or ScanNet.
-
-Sample usage:
-python train.py --dataset sunrgbd --log_dir log_sunrgbd
-
-To use Tensorboard:
-At server:
-    python -m tensorboard.main --logdir=<log_dir_name> --port=6006
-At local machine:
-    ssh -L 1237:localhost:6006 <server_name>
-Then go to local browser and type:
-    localhost:1237
-"""
 
 import os
 import sys
@@ -60,10 +47,30 @@ parser.add_argument('--lr_decay_steps', default='80,120,160', help='When to deca
 parser.add_argument('--lr_decay_rates', default='0.1,0.1,0.1', help='Decay rates for lr decay [default: 0.1,0.1,0.1]')
 parser.add_argument('--no_height', action='store_true', help='Do NOT use height signal in input.')
 parser.add_argument('--use_color', action='store_true', help='Use RGB color in input.')
+
+parser.add_argument('--use_cond_votes', action='store_true', default=False,
+                    help='Use conditional votes label (only points associated with the conditioned object vote)')
+
+parser.add_argument('--use_neg_votes', action='store_true', default=False,
+                    help='All points can vote, but only the points associated with the conditioned object vote to the center.'
+                         'The rest vote to the negative direction.')
+parser.add_argument('--neg_votes_factor', type=float, default=1.0)
+
+parser.add_argument('--use_rand_votes', action='store_true', default=False,
+                    help='All points can vote, but only the points associated with the conditioned object vote to the center.'
+                         'The rest vote to a random point.')
+parser.add_argument('--rand_votes_factor', type=float, default=1.0)
+
+parser.add_argument('--use_two_backbones', action='store_true', default=False,
+                    help='Use another pointnet++ backbone net for the conditional point cloud.')
+
 parser.add_argument('--use_sunrgbd_v2', action='store_true', help='Use V2 box labels for SUN RGB-D dataset')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite existing log and dump folders.')
 parser.add_argument('--dump_results', action='store_true', help='Dump results.')
 FLAGS = parser.parse_args()
+
+assert not (FLAGS.use_rand_votes and not FLAGS.use_cond_votes), "If use_rand_votes=True, use_cond_votes=True is a must!"
+assert not (FLAGS.model == 'cond_votenet' and FLAGS.dataset != 'shapenet'), "If model=cond_votenet, dataset=shapenet is a must!"
 
 # ------------------------------------------------------------------------- GLOBAL CONFIG BEG
 BATCH_SIZE = FLAGS.batch_size
@@ -110,58 +117,73 @@ def my_worker_init_fn(worker_id):
     np.random.seed(np.random.get_state()[1][0] + worker_id)
 
 # Create Dataset and Dataloader
-if FLAGS.dataset == 'sunrgbd':
-    sys.path.append(os.path.join(ROOT_DIR, 'sunrgbd'))
-    from sunrgbd_detection_dataset import SunrgbdDetectionVotesDataset, MAX_NUM_OBJ
-    from model_util_sunrgbd import SunrgbdDatasetConfig
-    DATASET_CONFIG = SunrgbdDatasetConfig()
-    TRAIN_DATASET = SunrgbdDetectionVotesDataset('train', num_points=NUM_POINT,
-        augment=True,
-        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height),
-        use_v1=(not FLAGS.use_sunrgbd_v2))
-    TEST_DATASET = SunrgbdDetectionVotesDataset('val', num_points=NUM_POINT,
+if FLAGS.dataset == 'shapenet':
+    sys.path.append(os.path.join(ROOT_DIR, 'shapenet'))
+    from shapenet_detection_dataset import ShapenetDetectionVotesDataset
+    from model_util_shapenet import ShapenetDatasetConfig
+
+    DATASET_CONFIG = ShapenetDatasetConfig()
+    TRAIN_DATASET = ShapenetDetectionVotesDataset(
+        'train', num_points=NUM_POINT,
         augment=False,
-        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height),
-        use_v1=(not FLAGS.use_sunrgbd_v2))
-elif FLAGS.dataset == 'scannet':
-    sys.path.append(os.path.join(ROOT_DIR, 'scannet'))
-    from scannet_detection_dataset import ScannetDetectionDataset, MAX_NUM_OBJ
-    from model_util_scannet import ScannetDatasetConfig
-    DATASET_CONFIG = ScannetDatasetConfig()
-    TRAIN_DATASET = ScannetDetectionDataset('train', num_points=NUM_POINT,
-        augment=True,
-        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height))
-    TEST_DATASET = ScannetDetectionDataset('val', num_points=NUM_POINT,
+        use_cond_votes=FLAGS.use_cond_votes,
+        use_rand_votes=FLAGS.use_rand_votes, rand_votes_factor=FLAGS.rand_votes_factor,
+        use_neg_votes=FLAGS.use_neg_votes, neg_votes_factor=FLAGS.neg_votes_factor,
+    )
+    TEST_DATASET = ShapenetDetectionVotesDataset(
+        'val', num_points=NUM_POINT,
         augment=False,
-        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height))
+        use_cond_votes=FLAGS.use_cond_votes,
+        use_rand_votes=FLAGS.use_rand_votes, rand_votes_factor=FLAGS.rand_votes_factor,
+        use_neg_votes=FLAGS.use_neg_votes, neg_votes_factor=FLAGS.neg_votes_factor,
+    )
 else:
     print('Unknown dataset %s. Exiting...'%(FLAGS.dataset))
     exit(-1)
-print(len(TRAIN_DATASET), len(TEST_DATASET))
+
+print(f' |TRAIN_DATASET|={len(TRAIN_DATASET)}', f'|TEST_DATASET|={len(TEST_DATASET)}')
+
 TRAIN_DATALOADER = DataLoader(TRAIN_DATASET, batch_size=BATCH_SIZE,
     shuffle=True, num_workers=4, worker_init_fn=my_worker_init_fn)
 TEST_DATALOADER = DataLoader(TEST_DATASET, batch_size=BATCH_SIZE,
     shuffle=True, num_workers=4, worker_init_fn=my_worker_init_fn)
-print(len(TRAIN_DATALOADER), len(TEST_DATALOADER))
 
-# Init the model and optimzier
-MODEL = importlib.import_module(FLAGS.model) # import network module
+print(f' |TRAIN_DATALOADER|={len(TRAIN_DATALOADER)}', f'|TEST_DATALOADER|={len(TEST_DATALOADER)}')
+
+MODEL = importlib.import_module(FLAGS.model)  # import network module
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 num_input_channel = int(FLAGS.use_color)*3 + int(not FLAGS.no_height)*1
 
 if FLAGS.model == 'boxnet':
     Detector = MODEL.BoxNet
+elif FLAGS.model == 'cond_votenet':
+    Detector = MODEL.CondVoteNet
 else:
     Detector = MODEL.VoteNet
 
-net = Detector(num_class=DATASET_CONFIG.num_class,
-               num_heading_bin=DATASET_CONFIG.num_heading_bin,
-               num_size_cluster=DATASET_CONFIG.num_size_cluster,
-               mean_size_arr=DATASET_CONFIG.mean_size_arr,
-               num_proposal=FLAGS.num_target,
-               input_feature_dim=num_input_channel,
-               vote_factor=FLAGS.vote_factor,
-               sampling=FLAGS.cluster_sampling)
+if FLAGS.model == 'cond_votenet':
+    net = Detector(
+        num_class=DATASET_CONFIG.num_class,
+        num_heading_bin=DATASET_CONFIG.num_heading_bin,
+        num_size_cluster=DATASET_CONFIG.num_size_cluster,
+        mean_size_arr=DATASET_CONFIG.mean_size_arr,
+        num_proposal=FLAGS.num_target,
+        input_feature_dim=0,
+        vote_factor=FLAGS.vote_factor,
+        sampling=FLAGS.cluster_sampling,
+        use_two_backbones=FLAGS.use_two_backbones,
+    )
+else:
+    net = Detector(
+        num_class=DATASET_CONFIG.num_class,
+        num_heading_bin=DATASET_CONFIG.num_heading_bin,
+        num_size_cluster=DATASET_CONFIG.num_size_cluster,
+        mean_size_arr=DATASET_CONFIG.mean_size_arr,
+        num_proposal=FLAGS.num_target,
+        input_feature_dim=num_input_channel,
+        vote_factor=FLAGS.vote_factor,
+        sampling=FLAGS.cluster_sampling
+    )
 
 if torch.cuda.device_count() > 1:
   log_string("Let's use %d GPUs!" % (torch.cuda.device_count()))
@@ -208,10 +230,16 @@ TEST_VISUALIZER = TfVisualizer(FLAGS, 'test')
 
 
 # Used for AP calculation
-CONFIG_DICT = {'remove_empty_box':False, 'use_3d_nms':True,
-    'nms_iou':0.25, 'use_old_type_nms':False, 'cls_nms':True,
-    'per_class_proposal': True, 'conf_thresh':0.05,
-    'dataset_config':DATASET_CONFIG}
+CONFIG_DICT = {
+    'remove_empty_box': False,
+    'use_3d_nms': True,
+    'nms_iou': 0.25,
+    'use_old_type_nms': False,
+    'cls_nms': True,
+    'per_class_proposal': True,
+    'conf_thresh': 0.05,
+    'dataset_config': DATASET_CONFIG
+}
 
 # ------------------------------------------------------------------------- GLOBAL CONFIG END
 
@@ -226,7 +254,16 @@ def train_one_epoch():
 
         # Forward pass
         optimizer.zero_grad()
-        inputs = {'point_clouds': batch_data_label['point_clouds']}
+        if FLAGS.dataset == 'shapenet':
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds'],
+                'cond_point_clouds': batch_data_label['cond_point_clouds']
+            }
+        else:
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds']
+            }
+
         end_points = net(inputs)
         
         # Compute loss and gradients, update parameters.
@@ -264,7 +301,16 @@ def evaluate_one_epoch():
             batch_data_label[key] = batch_data_label[key].to(device)
         
         # Forward pass
-        inputs = {'point_clouds': batch_data_label['point_clouds']}
+        if FLAGS.dataset == 'shapenet':
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds'],
+                'cond_point_clouds': batch_data_label['cond_point_clouds']
+            }
+        else:
+            inputs = {
+                'point_clouds': batch_data_label['point_clouds'],
+            }
+
         with torch.no_grad():
             end_points = net(inputs)
 

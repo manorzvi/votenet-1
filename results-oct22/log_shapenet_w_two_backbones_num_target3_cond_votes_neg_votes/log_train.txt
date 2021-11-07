@@ -1,0 +1,33 @@
+Namespace(DUMP_DIR='dump_shapenet_w_two_backbones_num_target3_cond_votes_neg_votes', ap_iou_thresh=0.25, batch_size=8, bn_decay_rate=0.5, bn_decay_step=20, checkpoint_path=None, cluster_sampling='vote_fps', dataset='shapenet', dump_dir='dump_shapenet_w_two_backbones_num_target3_cond_votes_neg_votes', dump_results=True, learning_rate=0.001, log_dir='log_shapenet_w_two_backbones_num_target3_cond_votes_neg_votes', lr_decay_rates='0.1,0.1,0.1', lr_decay_steps='80,120,160', max_epoch=40, model='cond_votenet', neg_votes_factor=1.0, no_height=False, num_point=20000, num_target=3, overwrite=False, rand_votes_factor=1.0, use_color=False, use_cond_votes=True, use_neg_votes=True, use_rand_votes=False, use_sunrgbd_v2=False, use_two_backbones=True, vote_factor=1, weight_decay=0)
+**** EPOCH 000 ****
+Current learning rate: 0.001000
+Current BN decay momentum: 0.500000
+2021-10-22 16:25:28.800974
+ ---- batch: 010 ----
+mean box_loss: 7.730685
+mean center_loss: 7.730685
+mean heading_cls_loss: 0.000000
+mean heading_reg_loss: 0.000000
+mean loss: 93.355089
+mean neg_ratio: 0.991667
+mean obj_acc: 0.818297
+mean objectness_loss: 0.103300
+mean pos_ratio: 0.000000
+mean sem_cls_loss: 0.000000
+mean size_cls_loss: 0.000000
+mean size_reg_loss: 0.000000
+mean vote_loss: 1.553174
+ ---- batch: 020 ----
+mean box_loss: 7.384655
+mean center_loss: 7.384655
+mean heading_cls_loss: 0.000000
+mean heading_reg_loss: 0.000000
+mean loss: 92.251455
+mean neg_ratio: 0.995833
+mean obj_acc: 1.000000
+mean objectness_loss: 0.051931
+mean pos_ratio: 0.000000
+mean sem_cls_loss: 0.000000
+mean size_cls_loss: 0.000000
+mean size_reg_loss: 0.000000
+mean vote_loss: 1.814525
