@@ -2,7 +2,7 @@
 ## Follow-up work of [Deep Hough Voting for 3D Object Detection in Point Clouds](https://github.com/facebookresearch/votenet)
 Created by [Manor Zvi](mailto:manor.zvi@campus.technion.ac.il), [Nitai Fingerhut](mailto:nitaifingerhut@gmail.com)
 
-![teaser](https://github.com/manorzvi/votenet-1/blob/shapenet-workinet-real/results-oct24/eval_shapenet_num_target32_cond_votes/000001_snap00.png)
+![teaser](https://github.com/manorzvi/votenet-1/blob/main/results-oct24/eval_shapenet_num_target32_cond_votes/000001_snap00.png)
 
 ## Table of contents
 
